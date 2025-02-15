@@ -1,0 +1,76 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+
+ const handleUploadPdf = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const files = e.target.files;
+  if (!files) return;
+
+  const validPdfs: string[] = [];
+  const fileReaders: FileReader[] = [];
+
+  Array.from(files).forEach((file) => {
+    if (file.type !== "application/pdf") {
+      console.log(`File "${file.name}" is not a PDF. Skipping.`);
+      return;
+    }
+
+    const reader = new FileReader();
+    fileReaders.push(reader);
+
+    reader.onload = () => {
+      if (reader.result) {
+        validPdfs.push(reader.result as string);
+
+        if (validPdfs.length === fileReaders.length) {
+          setPdfs((prevPdfs) => [...prevPdfs, ...validPdfs]);
+          console.log(pdfs); // Check updated state
+        }
+      }
+    };
+
+    reader.readAsDataURL(file); // Read PDF as Base64
+  });
+  };
