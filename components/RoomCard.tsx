@@ -33,7 +33,7 @@ const RoomCard = ({ content }: ContentRoomProps) => {
   };
   return (
     <Card
-      className="p-3 flex flex-col gap-[-10px]"
+      className="p-2 flex flex-col gap-[-10px] rounded-[24px]"
       key={content.id}
       onClick={handleClick}
     >
@@ -43,7 +43,7 @@ const RoomCard = ({ content }: ContentRoomProps) => {
           alt="room image"
           width={500}
           height={500}
-          className="rounded-[12px] h-[150px]"
+          className="rounded-[18px] h-[150px]"
         />
       ) : null}
       <CardHeader>

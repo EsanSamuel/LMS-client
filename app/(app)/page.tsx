@@ -126,7 +126,7 @@ const page = () => {
         </div>
       </div>
 
-      <div className="lg:px-[50px] px-5 py-3 w-full">
+      <div className="lg:px-[50px] px-3 py-3 w-full">
         <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
           {data?.map((content) => (
            <RoomCard content={content} key={content.id}/>

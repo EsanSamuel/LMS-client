@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { FileText, SquareLibrary } from "lucide-react";
+import { FileText, Package, SquareLibrary } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -62,7 +62,7 @@ const ModuleCard = ({ module }: IModule) => {
       <>
         <div className="flex items-center gap-2">
           <div className="bg-[#47f486] rounded-[5px] p-2 items-center">
-            <SquareLibrary size={14} color="#fff" />
+            <Package size={14} color="#fff" />
           </div>
 
           <div className="flex flex-col ">

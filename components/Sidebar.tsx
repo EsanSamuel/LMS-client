@@ -28,7 +28,7 @@ import { Separator } from "./ui/separator";
 import axios from "axios";
 import { auth } from "@clerk/nextjs/server";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@clerk/nextjs";
+import { SignIn, SignInButton, useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
 import Image from "next/image";
 
@@ -168,17 +168,21 @@ export function AppSidebar() {
                 {/*User profile*/}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className="text-[13px]">
-                    <a href="#">
-                      <Image
-                        src={data?.profileImage!}
-                        alt="profileimage"
-                        width={25}
-                        height={25}
-                        className="rounded-[2px]"
-                      />
+                    {userId ? (
+                      <a href="#">
+                        <Image
+                          src={data?.profileImage!}
+                          alt="profileimage"
+                          width={25}
+                          height={25}
+                          className="rounded-[2px]"
+                        />
 
-                      <span>{data?.username}</span>
-                    </a>
+                        <span>{data?.username}</span>
+                      </a>
+                    ) : (
+                      <SignInButton />
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

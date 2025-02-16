@@ -109,6 +109,12 @@ const Navbar = () => {
           <Book size={14} color="#fff" />
         </div>
       );
+    }else if (path === "create-quiz") {
+      return (
+        <div className="bg-[#8c6dfd] rounded-[5px] p-2 items-center">
+          <Gamepad size={14} color="#fff" />
+        </div>
+      );
     }
   };
 
@@ -116,7 +122,7 @@ const Navbar = () => {
     <div className="w-[100%] flex justify-between items-center p-4">
       <div className="flex gap-2 items-center">
         {showIcon()}
-        <span className="font-bold">{path}</span>
+        <span className="font-bold text-gray-600">{path}</span>
       </div>
 
       {path === "Home" && (
@@ -127,7 +133,7 @@ const Navbar = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="pb-2">Create new content</DialogTitle>
+              <DialogTitle className="pb-2 text-gray-600">Create new content</DialogTitle>
               <Separator className="" />
               <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-3 w-full pt-5">
                 {contents.map((content) => (
@@ -142,7 +148,7 @@ const Navbar = () => {
                       </div>
                       <span className="text-[14px]">{content.title}</span>
                     </div>
-                    <h1 className="text-[12px]">{content.description}</h1>
+                    <h1 className="text-[12px] lg:block hidden">{content.description}</h1>
                   </Link>
                 ))}
               </div>

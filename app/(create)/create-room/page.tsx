@@ -101,7 +101,7 @@ const page = () => {
           <div className="bg-[#eb4174] rounded-[5px] p-2 items-center">
             <Library size={14} color="#fff" />
           </div>
-          <span className="font-bold">Create learning room</span>
+          <span className="font-bold text-gray-600">Create learning room</span>
         </div>
         <Button>Continue</Button>
       </header>
@@ -179,10 +179,10 @@ const page = () => {
                   <SelectValue placeholder="Tag" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="light" className="text-gray-400">
+                  <SelectItem value="Tech" className="text-gray-400">
                     Tech
                   </SelectItem>
-                  <SelectItem value="dark" className="text-gray-400">
+                  <SelectItem value="Others" className="text-gray-400">
                     Others
                   </SelectItem>
                 </SelectContent>

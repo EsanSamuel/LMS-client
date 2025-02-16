@@ -442,11 +442,11 @@ const Course = ({ moduleId }: { moduleId: string }) => {
           {courses?.map((course, index) => (
             <div
               onClick={() => handleClick(course.id)}
-              className=" p-3 border border-gray-300 rounded-[10px] flex justify-between items-center hover:border-[#47f486] cursor-pointer"
+              className=" p-3 border border-gray-300 rounded-[10px] flex justify-between items-center hover:border-[#ec5fc4] cursor-pointer"
             >
               <>
                 <div className="flex items-center gap-2">
-                  <div className="bg-[#47f486] rounded-[5px] p-2 items-center">
+                  <div className="bg-[#ec5fc4] rounded-[5px] p-2 items-center">
                     <SquareLibrary size={14} color="#fff" />
                   </div>
 
