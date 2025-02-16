@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Book,
@@ -50,6 +50,7 @@ interface IQuiz {
   title: string;
   id: string;
   questions: {
+    id: string;
     text: string;
     options: string[];
     correctAnswer: string;
@@ -57,10 +58,18 @@ interface IQuiz {
 }
 [];
 
+interface UserAnswerPayload {
+  userId: string;
+  answer: string;
+  isCorrect: boolean | null;
+}
+
 const CourseContent = ({ courseId }: { courseId: string }) => {
-  const userId = useAuth();
+  const { userId } = useAuth();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentVideo, setCurrentVideo] = useState("");
+  const [answers, setAnswers] = useState<any>({});
+  const [score, setScore] = useState(0);
 
   const router = useRouter();
   async function fetchCourse(): Promise<CoursePayload> {
@@ -102,6 +111,45 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
     queryKey: [`quiz:${courseId}`],
     queryFn: fetchCourseQuiz,
   });
+
+  const handleAnswerChange = (q_id: string, value: string) => {
+    //answers.1234 = "Answer"
+    setAnswers({ ...answers, [q_id]: value });
+  };
+
+  const mutation = useMutation<void, Error, UserAnswerPayload>({
+    mutationFn: (data: UserAnswerPayload) => {
+      return axios.post(
+        `http://localhost:8080/v1/check-quizAnswer/${userId}`,
+        data
+      );
+    },
+  });
+
+  const handleQuizSubmit = async (questionId: string) => {
+    try {
+      const data = {
+        answers: Object.keys(answers).map((qId) => ({
+          questionId: qId,
+          answer: answers[qId],
+        })),
+      };
+      const response = mutation.mutate(data as any);
+
+      const getQuizGrade = async () => {
+        const response = await axios.post(
+          `http://localhost:8080/v1/grade-quiz/${questionId}`
+        );
+        const grades = response.data.data;
+        const score = grades.filter((grade: any) => grade.isCorrect).length;
+        setScore(score);
+        console.log(score)
+      };
+      getQuizGrade();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="lg:px-20 px-3 pb-10">
@@ -240,47 +288,65 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
                 </h1>
 
                 <Separator className="my-3" />
-                <div className=" my-2">
-                  {quiz.questions?.map((question) => (
+                <div className=" my-2 flex flex-col gap-4">
+                  {quiz.questions?.map((question, qIndex) => (
                     <div>
                       <h1 className="text-[16px] text-gray-600 font-bold">
-                        {index + 1}. {question.text}
+                        {qIndex + 1}. {question.text}
                       </h1>
 
-                      {question.options.map((opt, optindex) => {
-                        const optionInAlphabeth = () => {
-                          if (optindex === 0) {
-                            return "a";
-                          } else if (optindex === 1) {
-                            return "b";
-                          } else if (optindex === 2) {
-                            return "c";
-                          } else if (optindex === 3) {
-                            return "d";
-                          }
-                        };
-                        return (
-                          <div className="mt-4 gap-4 flex flex-col">
-                            <RadioGroup>
-                              <div className="flex items-center space-x-2 pb-3">
+                      <RadioGroup
+                        value={answers[question.id]}
+                        onValueChange={(value: any) =>
+                          handleAnswerChange(question.id, value)
+                        }
+                      >
+                        {question.options.map((opt, optindex) => {
+                          const optionInAlphabeth = () => {
+                            if (optindex === 0) {
+                              return "a";
+                            } else if (optindex === 1) {
+                              return "b";
+                            } else if (optindex === 2) {
+                              return "c";
+                            } else if (optindex === 3) {
+                              return "d";
+                            }
+                          };
+                          return (
+                            <div className="mt-4 gap-4 flex flex-col">
+                              <div
+                                key={optindex}
+                                className="flex items-center space-x-2 pb-3"
+                              >
                                 <RadioGroupItem
                                   value={opt}
-                                  id={optionInAlphabeth()}
+                                  id={`option-${question.id}-${optindex}`}
                                 />
                                 <Label
-                                  htmlFor="option-one"
-                                  className="text-gray-600 "
+                                  htmlFor={`option-${question.id}-${optindex}`}
+                                  className="text-gray-600"
                                 >
                                   {opt}
                                 </Label>
                               </div>
-                            </RadioGroup>
-                          </div>
-                        );
-                      })}
+                            </div>
+                          );
+                        })}
+                      </RadioGroup>
                     </div>
                   ))}
                 </div>
+                <div className="flex justify-end">
+                  <Button onClick={() => handleQuizSubmit(quiz.id)}>
+                    Submit
+                  </Button>
+                </div>
+                {score && (
+                  <h1 className="font-bold text-gray-600">
+                    You scored: {score}
+                  </h1>
+                )}
               </div>
             ))}
           </div>
