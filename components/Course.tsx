@@ -428,7 +428,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                   disabled={isLoading}
                   onClick={handleSubmit}
                 >
-                  {loading ? "Creating..." : "Create"}
+                  {mutation.isPending ? "Creating..." : "Create"}
                 </Button>
               </SheetClose>
             </SheetFooter>

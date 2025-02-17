@@ -26,6 +26,8 @@ import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import Question from "./Question";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface CoursePayload {
   userId: string;
@@ -68,8 +70,11 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
   const { userId } = useAuth();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentVideo, setCurrentVideo] = useState("");
-  const [answers, setAnswers] = useState<any>({});
-  const [score, setScore] = useState(0);
+  const [answers, setAnswers] = useLocalStorage<any>("answers", {});
+  const [score, setScore] = useLocalStorage<any>("score", null);
+  const [quizId, setQuizId] = useLocalStorage<string>("quizId", "");
+  const [userQuiz, setUserQuiz] = useState<boolean>(false);
+  const [isSubmitting, setisSubmitting] = useState<boolean>(false);
 
   const router = useRouter();
   async function fetchCourse(): Promise<CoursePayload> {
@@ -126,7 +131,8 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
     },
   });
 
-  const handleQuizSubmit = async (questionId: string) => {
+  const handleQuizSubmit = async (quizId: string) => {
+    setisSubmitting(true);
     try {
       const data = {
         answers: Object.keys(answers).map((qId) => ({
@@ -134,18 +140,42 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
           answer: answers[qId],
         })),
       };
-      const response = mutation.mutate(data as any);
+      mutation.mutate(data as any);
+      setQuizId(quizId);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setisSubmitting(false);
+    }
+  };
 
-      const getQuizGrade = async () => {
-        const response = await axios.post(
-          `http://localhost:8080/v1/grade-quiz/${questionId}`
-        );
-        const grades = response.data.data;
+  useEffect(() => {
+    const getQuizGrade = async () => {
+      const response = await axios.post(
+        `http://localhost:8080/v1/grade-quiz/${quizId}`
+      );
+      const grades = response.data.data;
+      const user = grades.filter((grade: any) => grade.user.clerkId === userId);
+
+      if (user.length > 0) {
+        setUserQuiz(true);
         const score = grades.filter((grade: any) => grade.isCorrect).length;
         setScore(score);
-        console.log(score)
-      };
-      getQuizGrade();
+      } else {
+        setUserQuiz(false);
+        setScore(null);
+      }
+    };
+    getQuizGrade();
+  }, [quizId, userId]);
+
+  const handleDeleteAnswers = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/v1/delete-answers/${userId}`);
+      localStorage.removeItem("quizId");
+      localStorage.removeItem("hasUserTakenQuiz");
+      localStorage.removeItem("answers");
+      localStorage.removeItem("score");
     } catch (error) {
       console.log(error);
     }
@@ -290,63 +320,48 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
                 <Separator className="my-3" />
                 <div className=" my-2 flex flex-col gap-4">
                   {quiz.questions?.map((question, qIndex) => (
-                    <div>
-                      <h1 className="text-[16px] text-gray-600 font-bold">
-                        {qIndex + 1}. {question.text}
-                      </h1>
-
-                      <RadioGroup
-                        value={answers[question.id]}
-                        onValueChange={(value: any) =>
-                          handleAnswerChange(question.id, value)
-                        }
-                      >
-                        {question.options.map((opt, optindex) => {
-                          const optionInAlphabeth = () => {
-                            if (optindex === 0) {
-                              return "a";
-                            } else if (optindex === 1) {
-                              return "b";
-                            } else if (optindex === 2) {
-                              return "c";
-                            } else if (optindex === 3) {
-                              return "d";
-                            }
-                          };
-                          return (
-                            <div className="mt-4 gap-4 flex flex-col">
-                              <div
-                                key={optindex}
-                                className="flex items-center space-x-2 pb-3"
-                              >
-                                <RadioGroupItem
-                                  value={opt}
-                                  id={`option-${question.id}-${optindex}`}
-                                />
-                                <Label
-                                  htmlFor={`option-${question.id}-${optindex}`}
-                                  className="text-gray-600"
-                                >
-                                  {opt}
-                                </Label>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </RadioGroup>
-                    </div>
+                    <Question
+                      question={question}
+                      handleAnswerChange={handleAnswerChange}
+                      qIndex={qIndex}
+                      answers={answers}
+                      score={score}
+                      userQuiz={userQuiz}
+                    />
                   ))}
                 </div>
-                <div className="flex justify-end">
-                  <Button onClick={() => handleQuizSubmit(quiz.id)}>
-                    Submit
-                  </Button>
+
+                <Separator className="my-5 " />
+                <div className="flex lg:justify-between items-center">
+                  <div className="flex lg:justify-end">
+                    {!userQuiz ? (
+                      <Button onClick={() => handleQuizSubmit(quiz.id)}>
+                        {mutation.isPending ? "Submitting..." : " Submit"}
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2 flex-col items-center">
+                        <h1 className="font-bold text-[14px] text-gray-600">
+                          You've taken this quiz
+                        </h1>
+                        <Button onClick={handleDeleteAnswers}>
+                          Retake Quiz
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    {" "}
+                    {userQuiz && (
+                      <>
+                        <h1 className="font-bold text-gray-600">
+                          You scored: {score} / {quiz.questions.length} ({" "}
+                          {(score / quiz.questions.length) * 100}%)
+                        </h1>
+                      </>
+                    )}
+                  </div>
                 </div>
-                {score && (
-                  <h1 className="font-bold text-gray-600">
-                    You scored: {score}
-                  </h1>
-                )}
               </div>
             ))}
           </div>

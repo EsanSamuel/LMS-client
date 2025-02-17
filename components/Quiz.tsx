@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
@@ -123,9 +123,17 @@ const Quiz = ({ courseId }: { courseId: string }) => {
             {questions.map((question, qIndex) => (
               <div className="flex flex-col gap-2 overflow-y-auto border rounded-md p-5 shadow-md">
                 <div className="w-full flex justify-between items-center mt-5">
-                  <h1 className="font-bold text-[14px] text-gray-600">
-                    Quiz {qIndex + 1}
-                  </h1>
+                  <div className="flex justify-between w-full items-center">
+                    <h1 className="font-bold text-[14px] text-gray-600">
+                      Quiz {qIndex + 1}
+                    </h1>
+                    <Button
+                      onClick={() => removeQuestion(qIndex)}
+                      className="bg-red-500 py-1 px-3"
+                    >
+                      <X className="font-bold" size={17} />
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1 ">
                   <label className="text-[13px] text-gray-600 font-bold">
@@ -169,6 +177,7 @@ const Quiz = ({ courseId }: { courseId: string }) => {
                           <label className="text-[13px] text-gray-600 font-bold">
                             Enter Quiz options {optIndex + 1}
                           </label>
+
                           <Input
                             className=""
                             placeholder={`Option ${optIndex + 1}`}

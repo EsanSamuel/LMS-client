@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Filter, Search } from "lucide-react";
+import { Filter, ListFilter, Search } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,8 +23,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, getTime } from "date-fns";
 import RoomCard from "@/components/RoomCard";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface IRooms {
   roomName: string;
@@ -32,7 +33,7 @@ interface IRooms {
   category: string | null;
   status: "private" | "public";
   id: string;
-  createdAt: Date;
+  createdAt: any;
   userId: string;
   roomImage: string | null;
   coverImage: string | null;
@@ -43,6 +44,8 @@ interface IRooms {
 }
 
 const page = () => {
+  const [sortRooms, setSortRooms] = useLocalStorage<string>("Sort", "Random");
+  const [searchRooms, setSearchRooms] = useState("");
   async function fetchUser(): Promise<IRooms[]> {
     const response = await axios.get(`http://localhost:8080/v1/getRooms`);
     console.log(response.data.data);
@@ -53,6 +56,36 @@ const page = () => {
     queryKey: ["rooms"],
     queryFn: fetchUser,
   });
+
+  const getRooms = useMemo(() => {
+    if (sortRooms === "Earliest") {
+      return data?.sort(
+        (a: any, b: any) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      ) as any;
+    } else if (sortRooms === "Newest") {
+      return data?.sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ) as any;
+    } else if (sortRooms === "Random") {
+      return data as any;
+    }
+  }, [data, sortRooms]);
+
+  const filterRooms = () => {
+    if (!searchRooms.trim()) return getRooms;
+
+    const search = searchRooms.trim().toLowerCase();
+
+    const matchSearch = (room: IRooms) => {
+      return [room.roomName.toLowerCase()].some((field) =>
+        field.includes(search)
+      );
+    };
+
+    return getRooms.filter(matchSearch);
+  };
 
   return (
     <div className="">
@@ -105,7 +138,29 @@ const page = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <h1>Sort</h1>
+
+        <div className="lg:block hidden">
+          {" "}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex gap-2 items-center text-gray-600 text-[13px] outline-none font-bold">
+              <ListFilter size={13} className="font-bold" />
+              Sort: {sortRooms}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Sort </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setSortRooms("Newest")}>
+                Recently Created
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortRooms("Earliest")}>
+                Earliest
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortRooms("Random")}>
+                Default
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="lg:px-[50px] px-5 py-3 w-full">
         <div className="flex gap-5 items-center w-full">
@@ -121,6 +176,7 @@ const page = () => {
               type="search"
               placeholder="Search..."
               className="border-none outline-none w-full text-[13px]"
+              onChange={(e) => setSearchRooms(e.target.value)}
             />
           </label>
         </div>
@@ -128,8 +184,8 @@ const page = () => {
 
       <div className="lg:px-[50px] px-3 py-3 w-full">
         <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
-          {data?.map((content) => (
-           <RoomCard content={content} key={content.id}/>
+          {filterRooms()?.map((content: any) => (
+            <RoomCard content={content} key={content.id} />
           ))}
         </div>
       </div>
