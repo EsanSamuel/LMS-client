@@ -29,6 +29,7 @@ interface IModule {
     description: string | null;
     id: string;
     createdAt: Date;
+    Content: any;
   };
 }
 
@@ -77,7 +78,7 @@ const ModuleCard = ({ module }: IModule) => {
         <FileText size={14} className="text-gray-600" />
 
         <h1 className="font-bold text-[14px] text-gray-600">
-          {courses?.length} courses
+          {module?.Content?.length} courses
         </h1>
       </div>
     </div>

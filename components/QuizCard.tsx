@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import Question from "./Question";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "./ui/separator";
 import axios from "axios";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useMutation } from "@tanstack/react-query";
@@ -89,7 +89,6 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
   return (
     <div className="border shadow-md p-5 rounded-[10px]">
       <h1 className="font-bold text-gray-600 text-[20px]">{quiz.title}</h1>
-
       <Separator className="my-3" />
       <div className=" my-2 flex flex-col gap-4">
         {quiz.questions?.map((question: any, qIndex: number) => (

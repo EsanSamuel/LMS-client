@@ -103,7 +103,7 @@ const page = () => {
           </div>
           <span className="font-bold text-gray-600">Create learning room</span>
         </div>
-        <Button>Continue</Button>
+        <Button className="bg-[#8c6dfd]">Continue</Button>
       </header>
       <Separator />
       <form className="lg:px-[20%] md:px-[10%] px-5 lg:py-20 py-20">
@@ -197,9 +197,13 @@ const page = () => {
             }
           ></textarea>
 
-          <div className="justify-end flex mt-5 ">
-            <Button className="rounded-full" onClick={handleSubmit}>
-              Create Room
+          <div className="justify-end flex mt-5   ">
+            <Button
+              className="rounded-full bg-[#8c6dfd]"
+              onClick={handleSubmit}
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? "Creating..." : "Create Room"}
             </Button>
           </div>
         </div>

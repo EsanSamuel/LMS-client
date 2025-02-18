@@ -10,6 +10,8 @@ import {
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
+import { Book } from "lucide-react";
 
 interface ContentRoomProps {
   content: {
@@ -23,6 +25,7 @@ interface ContentRoomProps {
     createdAt: Date;
     userId: string;
     userIds: string[];
+    Module: any;
   };
 }
 
@@ -33,7 +36,7 @@ const RoomCard = ({ content }: ContentRoomProps) => {
   };
   return (
     <Card
-      className="p-2 flex flex-col gap-[-10px] rounded-[24px]"
+      className=" flex flex-col gap-[-10px] rounded-[10px]"
       key={content.id}
       onClick={handleClick}
     >
@@ -43,28 +46,39 @@ const RoomCard = ({ content }: ContentRoomProps) => {
           alt="room image"
           width={500}
           height={500}
-          className="rounded-[18px] h-[150px]"
+          className="rounded-t-[10px] lg:h-[150px] h-[200px]"
         />
       ) : null}
-      <CardHeader>
-        <CardTitle className="text-[18px]">{content.roomName}</CardTitle>
-        <CardDescription>
+      <div className="p-1">
+        <CardHeader>
+          <CardTitle className="text-[18px] text-gray-600">{content.roomName}</CardTitle>
+          {/*<CardDescription>
           {content.roomDescription?.slice(0, 60) + "..."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <button className="bg-gray-200 rounded-full text-gray-500 py-1 px-3">
-          {" "}
-          <p className="text-[12px]">{content.category}</p>
-        </button>
-      </CardContent>
-      <CardFooter>
-        <p className="text-[12px] text-gray-500">
-          {formatDistanceToNow(new Date(content.createdAt), {
-            addSuffix: true,
-          })}
-        </p>
-      </CardFooter>
+        </CardDescription>*/}
+        </CardHeader>
+        <CardContent className="flex gap-2">
+          <button className="bg-gray-200 rounded-full text-gray-500 py-1 px-3">
+            {" "}
+            <p className="text-[12px]">{content.category}</p>
+          </button>
+          <button
+            className="text-[#83a4e4] bg-[#e9effa]  rounded-full 
+          py-1 px-2 flex gap-2 items-center text-[12px] font-bold"
+          >
+            {" "}
+            <Book size={12} />
+            {content?.Module?.length}{" "}
+            {content?.Module?.length > 1 ? "Modules" : "Module"}
+          </button>
+        </CardContent>
+        <CardFooter>
+          <p className="text-[12px] text-gray-500">
+            {formatDistanceToNow(new Date(content.createdAt), {
+              addSuffix: true,
+            })}
+          </p>
+        </CardFooter>
+      </div>
     </Card>
   );
 };

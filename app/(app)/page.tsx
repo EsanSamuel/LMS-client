@@ -69,14 +69,14 @@ const page = () => {
       return data?.sort(
         (a: any, b: any) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      ) as any;
+      ) as IRooms[];
     } else if (sortRooms === "Newest") {
       return data?.sort(
         (a: any, b: any) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      ) as any;
+      ) as IRooms[];
     } else if (sortRooms === "Random") {
-      return data as any;
+      return data as IRooms[];
     }
   }, [data, sortRooms]);
 
@@ -94,7 +94,7 @@ const page = () => {
       ].some((field) => field.includes(searchTerm));
     };
 
-    return getRooms.filter(matchSearch);
+    return (getRooms as IRooms[]).filter(matchSearch);
   };
 
   return (
@@ -178,7 +178,7 @@ const page = () => {
         <div className="flex gap-5 items-center w-full">
           <>
             <span className="flex items-center gap-1 text-[12px] font-bold">
-              {data?.length} <span className="font-bold">rooms</span>
+              {filterRooms()?.length} <span className="font-bold">rooms</span>
             </span>
           </>
           <Separator orientation="vertical" className=" h-7" />
@@ -195,13 +195,13 @@ const page = () => {
       </div>
 
       <div className="lg:px-[50px] px-3 py-3 w-full">
-        {!isLoading && (!filterRooms() || filterRooms() === 0) ? (
+        {!isLoading && (!filterRooms() || filterRooms() === (0 as any)) ? (
           <div className="flex flex-col items-center justify-center mt-20">
             <Library size={70} className="text-gray-600" />
             <h1 className="text-center text-gray-600 font-bold">No Rooms</h1>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
+          <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5">
             {filterRooms()?.map((content: any) => (
               <RoomCard content={content} key={content.id} />
             ))}

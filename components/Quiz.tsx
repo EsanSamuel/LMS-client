@@ -7,6 +7,7 @@ import { Plus, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 interface QuestionPayload {
   userId: string;
@@ -20,6 +21,7 @@ interface QuestionPayload {
 
 const Quiz = ({ courseId }: { courseId: string }) => {
   const { userId } = useAuth();
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState<any[]>([
     {
@@ -97,6 +99,7 @@ const Quiz = ({ courseId }: { courseId: string }) => {
     };
     mutation.mutate(data as any);
     console.log(data);
+    router.push(`/Content/${courseId}`);
   };
   return (
     <div className="lg:px-10 px-3 py-10">
@@ -127,12 +130,12 @@ const Quiz = ({ courseId }: { courseId: string }) => {
                     <h1 className="font-bold text-[14px] text-gray-600">
                       Quiz {qIndex + 1}
                     </h1>
-                    <Button
+                    <button
                       onClick={() => removeQuestion(qIndex)}
-                      className="bg-red-500 py-1 px-3"
+                      className="text-red-500 py-1 px-3"
                     >
                       <X className="font-bold" size={17} />
-                    </Button>
+                    </button>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 ">
@@ -222,9 +225,10 @@ const Quiz = ({ courseId }: { courseId: string }) => {
             <Button
               onClick={handleQuiz}
               className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px] w-full"
+              disabled={mutation.isPending}
             >
               <Plus className="font-bold" size={15} />
-              Create Quiz
+              {mutation.isPending ? "Creating Quiz..." : "Create Quiz"}
             </Button>
           </div>
         </div>

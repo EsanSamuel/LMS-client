@@ -201,7 +201,7 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
                   alt="image"
                   width={500}
                   height={500}
-                  className="rounded-[10px] lg:h-[200px] h-[150px] w-full object-cover shadow-lg"
+                  className="rounded-[10px] lg:h-[200px] h-[150px] w-full object-contain shadow-lg"
                 />
               </div>
             ))}
@@ -252,14 +252,25 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
               Add Quiz
             </Button>
           </div>
-          <div className="mt-5">
-            {quizzes?.map((quiz, index) => (
-              <QuizCard
-                quiz={quiz}
-                handleAnswerChange={handleAnswerChange}
-                answers={answers}
-              />
-            ))}
+          <div className="">
+            {!quizloading && (!quizzes || quizzes.length === 0) ? (
+              <div className="flex flex-col gap-2 justify-center text-gray-600 items-center mt-5">
+                <Gamepad size={50} />
+                <h1 className=" text-gray-600 font-bold text-center">
+                  No Quiz
+                </h1>
+              </div>
+            ) : (
+              <div className="mt-5">
+                {quizzes?.map((quiz, index) => (
+                  <QuizCard
+                    quiz={quiz}
+                    handleAnswerChange={handleAnswerChange}
+                    answers={answers}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

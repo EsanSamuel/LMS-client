@@ -244,7 +244,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
           </SheetTrigger>
           <SheetContent className="overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>Add course</SheetTitle>
+              <SheetTitle>Add course Chapter</SheetTitle>
               <SheetDescription className="text-[13px]"></SheetDescription>
             </SheetHeader>
             <div className="grid gap-4 py-4">
@@ -432,7 +432,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                 <Button
                   type="submit"
                   // onClick={handleSubmit}
-                  disabled={isLoading}
+                  disabled={mutation.isPending}
                   onClick={handleSubmit}
                 >
                   {mutation.isPending ? "Creating..." : "Create"}
