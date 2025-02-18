@@ -1,7 +1,7 @@
 "use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import {
   Sheet,
   SheetClose,
@@ -31,6 +31,13 @@ import { Separator } from "@radix-ui/react-separator";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import BeatLoader from "react-spinners/BeatLoader";
+
+const override: CSSProperties = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+};
 
 interface IModule {
   userId: string;
@@ -439,37 +446,61 @@ const Course = ({ moduleId }: { moduleId: string }) => {
       <div className="py-5">
         <h1 className="font-bold pb-3 text-gray-600">Courses</h1>
         <div className="flex flex-col gap-2">
-          {courses?.map((course, index) => (
-            <div
-              onClick={() => handleClick(course.id)}
-              className=" p-3 border border-gray-300 rounded-[10px] flex justify-between items-center hover:border-[#ec5fc4] cursor-pointer"
-            >
-              <>
-                <div className="flex items-center gap-2">
-                  <div className="bg-[#ec5fc4] rounded-[5px] p-2 items-center">
-                    <SquareLibrary size={14} color="#fff" />
-                  </div>
+          {!loadingCourses && (!courses || courses.length === 0) ? (
+            <div className="flex flex-col items-center justify-center mt-20">
+              <SquareLibrary size={70} className="text-gray-600" />
+              <h1 className="text-center text-gray-600 font-bold">
+                No Courses
+              </h1>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {courses?.map((course, index) => (
+                <div
+                  onClick={() => handleClick(course.id)}
+                  className=" p-3 border border-gray-300 rounded-[10px] flex justify-between items-center hover:border-[#ec5fc4] cursor-pointer"
+                >
+                  <>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-[#ec5fc4] rounded-[5px] p-2 items-center">
+                        <SquareLibrary size={14} color="#fff" />
+                      </div>
 
-                  <div className="flex flex-col ">
+                      <div className="flex flex-col ">
+                        <h1 className="font-bold text-[14px] text-gray-600">
+                          Chapter {index + 1}: {course.title}
+                        </h1>
+                        <p className="text-[12px] text-gray-600">
+                          {course?.textContent?.slice(0, 60)}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                  <div className="lg:flex items-center gap-1 hidden">
+                    <FileText size={14} className="text-gray-600" />
+
                     <h1 className="font-bold text-[14px] text-gray-600">
-                      Chapter {index + 1}: {course.title}
+                      Lesson {index + 1}
                     </h1>
-                    <p className="text-[12px] text-gray-600">
-                      {course?.textContent?.slice(0, 60)}
-                    </p>
                   </div>
                 </div>
-              </>
-              <div className="lg:flex items-center gap-1 hidden">
-                <FileText size={14} className="text-gray-600" />
-
-                <h1 className="font-bold text-[14px] text-gray-600">
-                  Lesson {index + 1}
-                </h1>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
+        {loadingCourses && (
+          <div className="flex items-center justify-center h-full mt-20">
+            <BeatLoader
+              color="#8c6dfd"
+              loading={loadingCourses}
+              cssOverride={override}
+              size={20}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+              className="justify-center"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

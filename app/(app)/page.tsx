@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import React, { useMemo, useState } from "react";
+import React, { CSSProperties, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Filter, ListFilter, Search } from "lucide-react";
+import { Filter, Library, ListFilter, Search } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,6 +26,13 @@ import Image from "next/image";
 import { format, formatDistanceToNow, getTime } from "date-fns";
 import RoomCard from "@/components/RoomCard";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import BeatLoader from "react-spinners/BeatLoader";
+
+const override: CSSProperties = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+};
 
 interface IRooms {
   roomName: string;
@@ -76,12 +83,15 @@ const page = () => {
   const filterRooms = () => {
     if (!searchRooms.trim()) return getRooms;
 
-    const search = searchRooms.trim().toLowerCase();
+    const searchTerm = searchRooms.trim().toLowerCase();
 
     const matchSearch = (room: IRooms) => {
-      return [room.roomName.toLowerCase()].some((field) =>
-        field.includes(search)
-      );
+      return [
+        room.roomName.toLowerCase(),
+        formatDistanceToNow(new Date(room.createdAt), {
+          addSuffix: true,
+        }),
+      ].some((field) => field.includes(searchTerm));
     };
 
     return getRooms.filter(matchSearch);
@@ -97,19 +107,21 @@ const page = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
+              <BreadcrumbLink href="/components">Module</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
               <BreadcrumbLink href="/components">Course</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Quiz</BreadcrumbLink>
+              <BreadcrumbLink href="/components">Content</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Path</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Room</BreadcrumbPage>
+              <BreadcrumbPage className="font-bold text-gray-600">
+                Room
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -183,12 +195,32 @@ const page = () => {
       </div>
 
       <div className="lg:px-[50px] px-3 py-3 w-full">
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
-          {filterRooms()?.map((content: any) => (
-            <RoomCard content={content} key={content.id} />
-          ))}
-        </div>
+        {!isLoading && (!filterRooms() || filterRooms() === 0) ? (
+          <div className="flex flex-col items-center justify-center mt-20">
+            <Library size={70} className="text-gray-600" />
+            <h1 className="text-center text-gray-600 font-bold">No Rooms</h1>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
+            {filterRooms()?.map((content: any) => (
+              <RoomCard content={content} key={content.id} />
+            ))}
+          </div>
+        )}
       </div>
+      {isLoading && (
+        <div className="flex items-center justify-center h-full mt-20">
+          <BeatLoader
+            color="#8c6dfd"
+            loading={isLoading}
+            cssOverride={override}
+            size={20}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+            className="justify-center"
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import axios from "axios";
 import Image from "next/image";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
-import { FileText, Plus, SquareLibrary } from "lucide-react";
+import { FileText, Package, Plus, SquareLibrary } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -21,6 +21,15 @@ import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import ModuleCard from "./ModuleCard";
+
+import { CSSProperties } from "react";
+import BeatLoader from "react-spinners/BeatLoader";
+
+const override: CSSProperties = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+};
 
 interface roomProps {
   roomImage: string | null;
@@ -69,7 +78,7 @@ const Room = ({ roomId }: { roomId: string }) => {
   }
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["room"],
+    queryKey: [`room:${roomId}`],
     queryFn: fetchUser,
   });
   const {
@@ -77,7 +86,7 @@ const Room = ({ roomId }: { roomId: string }) => {
     error: moduleError,
     isLoading: moduleLoading,
   } = useQuery({
-    queryKey: ["modules"],
+    queryKey: [`modules:${roomId}`],
     queryFn: fetchModules,
   });
 
@@ -207,11 +216,35 @@ const Room = ({ roomId }: { roomId: string }) => {
       <div className="lg:py-10 py-5">
         <h1 className="font-bold pb-3 text-gray-600">Modules</h1>
         <div className="flex flex-col gap-2">
-          {modules?.map((module) => (
-            <ModuleCard module={module} />
-          ))}
+          {!moduleLoading && (!modules || modules.length === 0) ? (
+            <div className="flex flex-col items-center justify-center mt-20">
+              <Package size={70} className="text-gray-600" />
+              <h1 className="text-center text-gray-600 font-bold">
+                No Modules
+              </h1>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {modules?.map((module) => (
+                <ModuleCard module={module} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      {moduleLoading && (
+        <div className="flex items-center justify-center h-full mt-20">
+          <BeatLoader
+            color="#8c6dfd"
+            loading={moduleLoading}
+            cssOverride={override}
+            size={20}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+            className="justify-center"
+          />
+        </div>
+      )}
     </div>
   );
 };

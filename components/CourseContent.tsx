@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Question from "./Question";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import QuizCard from "./QuizCard";
 
 interface CoursePayload {
   userId: string;
@@ -120,65 +121,6 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
   const handleAnswerChange = (q_id: string, value: string) => {
     //answers.1234 = "Answer"
     setAnswers({ ...answers, [q_id]: value });
-  };
-
-  const mutation = useMutation<void, Error, UserAnswerPayload>({
-    mutationFn: (data: UserAnswerPayload) => {
-      return axios.post(
-        `http://localhost:8080/v1/check-quizAnswer/${userId}`,
-        data
-      );
-    },
-  });
-
-  const handleQuizSubmit = async (quizId: string) => {
-    setisSubmitting(true);
-    try {
-      const data = {
-        answers: Object.keys(answers).map((qId) => ({
-          questionId: qId,
-          answer: answers[qId],
-        })),
-      };
-      mutation.mutate(data as any);
-      setQuizId(quizId);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setisSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    const getQuizGrade = async () => {
-      const response = await axios.post(
-        `http://localhost:8080/v1/grade-quiz/${quizId}`
-      );
-      const grades = response.data.data;
-      const user = grades.filter((grade: any) => grade.user.clerkId === userId);
-
-      if (user.length > 0) {
-        setUserQuiz(true);
-        const score = grades.filter((grade: any) => grade.isCorrect).length;
-        setScore(score);
-      } else {
-        setUserQuiz(false);
-        setScore(null);
-      }
-    };
-    getQuizGrade();
-  }, [quizId, userId]);
-
-  const handleDeleteAnswers = async () => {
-    try {
-      await axios.delete(`http://localhost:8080/v1/delete-answers/${userId}`);
-      localStorage.removeItem("quizId");
-      localStorage.removeItem("hasUserTakenQuiz");
-      localStorage.removeItem("answers");
-      localStorage.removeItem("score");
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (
@@ -312,57 +254,11 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
           </div>
           <div className="mt-5">
             {quizzes?.map((quiz, index) => (
-              <div className="border shadow-md p-5 rounded-[10px]">
-                <h1 className="font-bold text-gray-600 text-[20px]">
-                  {quiz.title}
-                </h1>
-
-                <Separator className="my-3" />
-                <div className=" my-2 flex flex-col gap-4">
-                  {quiz.questions?.map((question, qIndex) => (
-                    <Question
-                      question={question}
-                      handleAnswerChange={handleAnswerChange}
-                      qIndex={qIndex}
-                      answers={answers}
-                      score={score}
-                      userQuiz={userQuiz}
-                    />
-                  ))}
-                </div>
-
-                <Separator className="my-5 " />
-                <div className="flex lg:justify-between items-center">
-                  <div className="flex lg:justify-end">
-                    {!userQuiz ? (
-                      <Button onClick={() => handleQuizSubmit(quiz.id)}>
-                        {mutation.isPending ? "Submitting..." : " Submit"}
-                      </Button>
-                    ) : (
-                      <div className="flex gap-2 flex-col items-center">
-                        <h1 className="font-bold text-[14px] text-gray-600">
-                          You've taken this quiz
-                        </h1>
-                        <Button onClick={handleDeleteAnswers}>
-                          Retake Quiz
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    {" "}
-                    {userQuiz && (
-                      <>
-                        <h1 className="font-bold text-gray-600">
-                          You scored: {score} / {quiz.questions.length} ({" "}
-                          {(score / quiz.questions.length) * 100}%)
-                        </h1>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <QuizCard
+                quiz={quiz}
+                handleAnswerChange={handleAnswerChange}
+                answers={answers}
+              />
             ))}
           </div>
         </div>
