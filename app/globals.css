@@ -20,6 +20,8 @@ body {
   -webkit-backdrop-filter: blur(5px);
 }
 
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -46,6 +46,7 @@ interface CoursePayload {
   pdf: File[];
   isDiscussion: boolean;
   courseRoomId: string | null;
+  links: string[];
 }
 
 interface IQuiz {
@@ -185,7 +186,17 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
             </span>
           </h1>
           <p className="text-gray-600 text-[13px]">{data?.textContent}</p>
+          {data?.links && (
+            <div className="flex flex-col mt-2">
+              {data?.links.map((link: any) => (
+                <a href={link} className="text-[12px] text-blue-500 underline">
+                  {link}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
+
         <div className="mt-10">
           <div className="flex gap-2 pb-3">
             <div className="bg-[#39e75f] rounded-[5px] p-1 items-center flex gap-2">

@@ -79,6 +79,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
   const [videoUrls, setVideoUrls] = React.useState<File[]>([]);
   const [previewThumbnail, setPreviewThumbnail] = useState("");
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [links, setLinks] = useState<string[]>([""]);
   const [pdfs, setPdfs] = useState<File[]>([]);
   const [loading, setIsLoading] = useState<boolean>(false);
   const [videosMB, setVideosMB] = useState(0);
@@ -171,6 +172,19 @@ const Course = ({ moduleId }: { moduleId: string }) => {
     },
   });
 
+  const handleLinkChange = (linkId: number, value: string) => {
+    const updatedLink = [...links];
+    updatedLink[linkId] = value;
+    setLinks(updatedLink);
+    console.log(updatedLink);
+  };
+
+  const addLinkInput = () => {
+    const updatedLink = [...links];
+    updatedLink.push("");
+    setLinks(updatedLink);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -186,6 +200,10 @@ const Course = ({ moduleId }: { moduleId: string }) => {
       formData.append("status", status);
       formData.append("textContent", form.textContent);
       formData.append("isDiscussion", isDiscussion.toString());
+
+      if (links) {
+        links.forEach((link) => formData.append("links", link));
+      }
 
       if (form.thumbnailUrl) {
         formData.append("thumbnailUrl", form.thumbnailUrl);
@@ -285,7 +303,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                 </div>
               )}
               <div className="text-start flex flex-col  gap-2">
-                <Label htmlFor="name" className="text-left">
+                <Label htmlFor="name" className="text-left text-gray-600">
                   Course title
                 </Label>
                 <Input
@@ -296,7 +314,10 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                 />
               </div>
               <div className="text-start flex flex-col  gap-2">
-                <Label htmlFor="description" className="text-left">
+                <Label
+                  htmlFor="description"
+                  className="text-left text-gray-600"
+                >
                   Course description
                 </Label>
                 <Input
@@ -311,7 +332,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
               <div className="text-start flex flex-col  gap-2">
                 <Label
                   htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left"
+                  className="flex justify-between items-center gap-2 text-left text-gray-600"
                 >
                   Upload images
                   <>
@@ -348,7 +369,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
               <div className="text-start flex flex-col  gap-2">
                 <Label
                   htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left"
+                  className="flex justify-between items-center gap-2 text-left text-gray-600"
                 >
                   Upload videos
                   <>
@@ -371,7 +392,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
               <div className="text-start flex flex-col  gap-2">
                 <Label
                   htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left"
+                  className="flex justify-between items-center gap-2 text-left text-gray-600"
                 >
                   Upload PDFs
                   <>
@@ -391,9 +412,31 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                 />
               </div>
 
+              <div className="text-start flex flex-col  gap-2">
+                <Label
+                  htmlFor="description"
+                  className="flex justify-between items-center gap-2 text-left text-gray-600"
+                >
+                  Add Links
+                  <Plus className="text-[#8c6dfd]" onClick={addLinkInput} />
+                </Label>
+                {links.map((link, linkIndex) => (
+                  <Input
+                    id="username"
+                    className="col-span-3 text-[13px]"
+                    placeholder="Module link..."
+                    onChange={(e) =>
+                      handleLinkChange(linkIndex, e.target.value)
+                    }
+                    type="text"
+                    value={link}
+                  />
+                ))}
+              </div>
+
               <div className="flex gap-2 flex-col w-full">
                 <>
-                  <Label>Visibility</Label>
+                  <Label className="text-gray-600">Visibility</Label>
                 </>
                 <Select onValueChange={setStatus} value={status}>
                   <SelectTrigger className="w-[180px] flex gap-0 items-center ext-[13px]">
@@ -416,7 +459,10 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                 </Select>
               </div>
               <div className="text-start flex justify-between  gap-2 mt-3">
-                <Label htmlFor="description" className="text-left">
+                <Label
+                  htmlFor="description"
+                  className="text-left text-gray-600"
+                >
                   Show comments
                 </Label>
                 <Switch
