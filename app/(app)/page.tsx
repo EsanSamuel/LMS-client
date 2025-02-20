@@ -27,6 +27,7 @@ import { format, formatDistanceToNow, getTime } from "date-fns";
 import RoomCard from "@/components/RoomCard";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import BeatLoader from "react-spinners/BeatLoader";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const override: CSSProperties = {
   display: "block",
@@ -96,6 +97,33 @@ const page = () => {
 
     return (getRooms as IRooms[]).filter(matchSearch);
   };
+
+  const skeletondata = [
+    {
+      id: 1,
+    },
+    {
+      id: 2,
+    },
+    {
+      id: 3,
+    },
+    {
+      id: 4,
+    },
+    {
+      id: 5,
+    },
+    {
+      id: 6,
+    },
+    {
+      id: 7,
+    },
+    {
+      id: 8,
+    },
+  ];
 
   return (
     <div className="">
@@ -177,9 +205,15 @@ const page = () => {
       <div className="lg:px-[50px] px-5 py-3 w-full">
         <div className="flex gap-5 items-center w-full">
           <>
-            <span className="flex items-center gap-1 text-[12px] font-bold">
-              {filterRooms()?.length} <span className="font-bold">rooms</span>
-            </span>
+            {filterRooms()?.length > 0 ? (
+              <span className="flex items-center gap-1 text-[12px] font-bold">
+                {filterRooms()?.length} <span className="font-bold">rooms</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-[12px] font-bold">
+                0 <span className="font-bold">rooms</span>
+              </span>
+            )}
           </>
           <Separator orientation="vertical" className=" h-7" />
           <label className="flex gap-2 items-center w-full">
@@ -209,8 +243,8 @@ const page = () => {
         )}
       </div>
       {isLoading && (
-        <div className="flex items-center justify-center h-full mt-20">
-          <BeatLoader
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5 lg:px-[50px] px-5 py-3 w-full">
+          {/*  <BeatLoader
             color="#8c6dfd"
             loading={isLoading}
             cssOverride={override}
@@ -218,7 +252,20 @@ const page = () => {
             aria-label="Loading Spinner"
             data-testid="loader"
             className="justify-center"
-          />
+          />*/}
+          {skeletondata.map((data) => (
+            <div className="flex flex-col space-y-3 " key={data.id}>
+              <Skeleton className="h-[125px]  w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 l w-full" />
+                <div className="flex justify-between gap-3">
+                  <Skeleton className="h-4 l w-full" />
+                  <Skeleton className="h-4  w-full" />
+                </div>
+                <Skeleton className="h-4  w-[100px]" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

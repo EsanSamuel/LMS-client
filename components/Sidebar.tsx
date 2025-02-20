@@ -45,7 +45,7 @@ const items = [
   },
   {
     title: "My courses",
-    url: "#",
+    url: "/MyCourses",
     icon: BookOpen,
   },
   {
@@ -55,7 +55,7 @@ const items = [
   },
   {
     title: "Saved Courses",
-    url: "#",
+    url: "/Bookmarks",
     icon: Bookmark,
   },
 ];

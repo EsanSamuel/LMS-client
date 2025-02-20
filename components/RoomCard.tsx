@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -47,6 +47,7 @@ interface IBookmark {
 const RoomCard = ({ content }: ContentRoomProps) => {
   const { userId } = useAuth();
   const router = useRouter();
+  const [base64Image, setBase64Image] = useState("");
   const handleClick = () => {
     router.push(`/Room/${content.id}`);
   };
@@ -101,6 +102,7 @@ const RoomCard = ({ content }: ContentRoomProps) => {
       console.log(error);
     }
   };
+
   return (
     <Card
       className=" flex flex-col gap-[-10px] rounded-[10px]"

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Book,
+  Bookmark,
   BookOpen,
   Gamepad,
   Home,
@@ -103,16 +104,28 @@ const Navbar = () => {
           <SquareLibrary size={14} color="#fff" />
         </div>
       );
-    }else if (path === "Content") {
+    } else if (path === "Content") {
       return (
         <div className="bg-[#ebe243] rounded-[5px] p-2 items-center">
           <Book size={14} color="#fff" />
         </div>
       );
-    }else if (path === "create-quiz") {
+    } else if (path === "create-quiz") {
       return (
         <div className="bg-[#8c6dfd] rounded-[5px] p-2 items-center">
           <Gamepad size={14} color="#fff" />
+        </div>
+      );
+    } else if (path === "Bookmarks") {
+      return (
+        <div className="bg-[#8c6dfd] rounded-[5px] p-2 items-center">
+          <Bookmark size={14} color="#fff" />
+        </div>
+      );
+    } else if (path === "MyCourses") {
+      return (
+        <div className="bg-[#ebe243] rounded-[5px] p-2 items-center">
+          <BookOpen size={14} color="#fff" />
         </div>
       );
     }
@@ -133,7 +146,9 @@ const Navbar = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="pb-2 text-gray-600">Create new content</DialogTitle>
+              <DialogTitle className="pb-2 text-gray-600">
+                Create new content
+              </DialogTitle>
               <Separator className="" />
               <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-3 w-full pt-5">
                 {contents.map((content) => (
@@ -148,7 +163,9 @@ const Navbar = () => {
                       </div>
                       <span className="text-[14px]">{content.title}</span>
                     </div>
-                    <h1 className="text-[12px] lg:block hidden">{content.description}</h1>
+                    <h1 className="text-[12px] lg:block hidden">
+                      {content.description}
+                    </h1>
                   </Link>
                 ))}
               </div>
