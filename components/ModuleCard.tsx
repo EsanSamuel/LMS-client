@@ -1,8 +1,9 @@
+import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { FileText, Package, SquareLibrary } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useMemo } from "react";
 
 interface CoursePayload {
   userId: string;
@@ -31,9 +32,28 @@ interface IModule {
     createdAt: Date;
     Content: any;
   };
+  isTracking?: boolean;
 }
 
-const ModuleCard = ({ module }: IModule) => {
+interface ITrack {
+  userId: string;
+  moduleId: string;
+  id: string;
+  addedAt: Date;
+  module: {
+    userId: string;
+    roomId: string;
+    title: string;
+    position: number;
+    description: string | null;
+    id: string;
+    createdAt: Date;
+    Content: any;
+  };
+}
+
+const ModuleCard = ({ module, isTracking }: IModule) => {
+  const { userId } = useAuth();
   const router = useRouter();
   async function fetchCourses(): Promise<CoursePayload[]> {
     const response = await axios.get(
@@ -52,9 +72,50 @@ const ModuleCard = ({ module }: IModule) => {
     queryFn: fetchCourses,
   });
 
-  const handleClick = (moduleId: string) => {
-    router.push(`/Courses/${moduleId}`);
+  async function fetchUserTracks(): Promise<ITrack[]> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getTrackedModule/${userId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const {
+    data: trackCourses,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: [`tracks:${userId}`],
+    queryFn: fetchUserTracks,
+  });
+
+  const checkIfTracked = useMemo(() => {
+    const modules = trackCourses?.map((data) => data.module.id);
+    return modules?.includes(module.id);
+  }, [module.id, trackCourses]);
+
+  const handleClick = async (moduleId: string) => {
+    try {
+      const isTracked = trackCourses?.some((data) => data.module.id);
+      if (!isTracked) {
+        const response = await axios.post(
+          `http://localhost:8080/v1/trackModule/${module.id}`,
+          {
+            userId: userId,
+          }
+        );
+        if (response.status === 201) {
+          router.push(`/Courses/${moduleId}`);
+        }
+      } else {
+        alert("already tracked!");
+        router.push(`/Courses/${moduleId}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
     <div
       onClick={() => handleClick(module.id)}

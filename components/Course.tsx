@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import BeatLoader from "react-spinners/BeatLoader";
+import CourseCard from "./CourseCard";
 
 const override: CSSProperties = {
   display: "block",
@@ -242,9 +243,6 @@ const Course = ({ moduleId }: { moduleId: string }) => {
     queryFn: fetchCourses,
   });
 
-  const handleClick = (courseId: string) => {
-    router.push(`/Content/${courseId}`);
-  };
   return (
     <div className="w-full lg:px-20 md:px-10 px-5 mt-5">
       <div className="flex justify-between lg:flex-row md:flex-row flex-col gap-5">
@@ -502,34 +500,10 @@ const Course = ({ moduleId }: { moduleId: string }) => {
           ) : (
             <div className="flex flex-col gap-2">
               {courses?.map((course, index) => (
-                <div
-                  onClick={() => handleClick(course.id)}
-                  className=" p-3 border border-gray-300 rounded-[10px] flex justify-between items-center hover:border-[#ec5fc4] cursor-pointer"
-                >
-                  <>
-                    <div className="flex items-center gap-2">
-                      <div className="bg-[#ec5fc4] rounded-[5px] p-2 items-center">
-                        <SquareLibrary size={14} color="#fff" />
-                      </div>
-
-                      <div className="flex flex-col ">
-                        <h1 className="font-bold text-[14px] text-gray-600">
-                          Chapter {index + 1}: {course.title}
-                        </h1>
-                        <p className="text-[12px] text-gray-600">
-                          {course?.textContent?.slice(0, 60)}
-                        </p>
-                      </div>
-                    </div>
-                  </>
-                  <div className="lg:flex items-center gap-1 hidden">
-                    <FileText size={14} className="text-gray-600" />
-
-                    <h1 className="font-bold text-[14px] text-gray-600">
-                      Lesson {index + 1}
-                    </h1>
-                  </div>
-                </div>
+                <CourseCard
+                  course={course}
+                  index={index}
+                />
               ))}
             </div>
           )}

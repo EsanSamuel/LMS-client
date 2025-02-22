@@ -205,7 +205,7 @@ const page = () => {
       <div className="lg:px-[50px] px-5 py-3 w-full">
         <div className="flex gap-5 items-center w-full">
           <>
-            {filterRooms()?.length > 0 ? (
+            {(filterRooms()?.length as number) > 0 ? (
               <span className="flex items-center gap-1 text-[12px] font-bold">
                 {filterRooms()?.length} <span className="font-bold">rooms</span>
               </span>

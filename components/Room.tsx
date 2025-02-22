@@ -203,9 +203,9 @@ const Room = ({ roomId }: { roomId: string }) => {
                 <Button
                   type="submit"
                   onClick={handleSubmit}
-                  disabled={isLoading}
+                  disabled={mutation.isPending}
                 >
-                  {isLoading ? "Creating..." : "Create"}
+                  {mutation.isPending ? "Creating..." : "Create"}
                 </Button>
               </SheetClose>
             </SheetFooter>
