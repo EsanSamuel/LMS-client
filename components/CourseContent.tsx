@@ -161,7 +161,7 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
 
           <div className="flex gap-2 px-5 pb-5">
             {data?.videoUrls?.map((video, index) => (
-              <div onClick={() => handleVideo(index)}>
+              <div onClick={() => handleVideo(index)} key={index}>
                 <video
                   controls
                   width="600"
@@ -188,8 +188,12 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
           <p className="text-gray-600 text-[13px]">{data?.textContent}</p>
           {data?.links && (
             <div className="flex flex-col mt-2">
-              {data?.links.map((link: any) => (
-                <a href={link} className="text-[12px] text-blue-500 underline">
+              {data?.links.map((link: any, index: number) => (
+                <a
+                  href={link}
+                  className="text-[12px] text-blue-500 underline"
+                  key={index}
+                >
                   {link}
                 </a>
               ))}
@@ -204,19 +208,21 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
             </div>
             <h1 className="font-bold text-gray-600 text-[16px]">Images</h1>
           </div>
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-2 lg:gap-4 gap-2 pb-5 w-full rounded-[20px] p-5 border border-gray-200 shadow-sm">
-            {data?.imageUrls?.map((image, index) => (
-              <div className="rounded-[10px]">
-                <Image
-                  src={image as any}
-                  alt="image"
-                  width={500}
-                  height={500}
-                  className="rounded-[10px] lg:h-[200px] h-[150px] w-full object-contain shadow-lg"
-                />
-              </div>
-            ))}
-          </div>
+          {data?.imageUrls && (
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-2 lg:gap-4 gap-2 pb-5 w-full rounded-[20px] p-5 border border-gray-200 shadow-sm">
+              {data?.imageUrls?.map((image, index) => (
+                <div className="rounded-[10px]" key={index}>
+                  <Image
+                    src={image as any}
+                    alt="image"
+                    width={500}
+                    height={500}
+                    className="rounded-[10px] lg:h-[200px] h-[150px] w-full object-contain shadow-lg"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-10">
@@ -229,7 +235,10 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 pb-5 w-full">
             {data?.pdf?.map((url, index) => {
               return (
-                <div className="border p-4 rounded-xl flex items-center justify-between w-full">
+                <div
+                  className="border p-4 rounded-xl flex items-center justify-between w-full"
+                  key={index}
+                >
                   <span className="text-lg font-semibold text-gray-700">
                     📄 PDF Document
                   </span>
@@ -274,11 +283,13 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
             ) : (
               <div className="mt-5">
                 {quizzes?.map((quiz, index) => (
-                  <QuizCard
-                    quiz={quiz}
-                    handleAnswerChange={handleAnswerChange}
-                    answers={answers}
-                  />
+                  <div key={index}>
+                    <QuizCard
+                      quiz={quiz}
+                      handleAnswerChange={handleAnswerChange}
+                      answers={answers}
+                    />
+                  </div>
                 ))}
               </div>
             )}

@@ -5,9 +5,10 @@ import Question from "./Question";
 import { Separator } from "./ui/separator";
 import axios from "axios";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { format, formatDistanceToNowStrict } from "date-fns";
 
 interface IQuiz {
   quiz: any;
@@ -27,6 +28,7 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
   const router = useRouter();
   const [score, setScore] = useLocalStorage<any>("score", null);
   const [userQuiz, setUserQuiz] = useState<boolean>(false);
+  const [answeredAt, setAnsweredAt] = useState("");
   const [isSubmitting, setisSubmitting] = useState<boolean>(false);
   const mutation = useMutation<void, Error, UserAnswerPayload>({
     mutationFn: (data: UserAnswerPayload) => {
@@ -35,6 +37,23 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
         data
       );
     },
+  });
+
+  async function fetchUserTracksQuiz(): Promise<IQuiz[]> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getTrackedQuiz/${userId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const {
+    data: trackedQuiz,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: [`trackQuiz:${userId}`],
+    queryFn: fetchUserTracksQuiz,
   });
 
   const handleQuizSubmit = async (quizId: string) => {
@@ -47,6 +66,23 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
         })),
       };
       mutation.mutate(data as any);
+
+      const isTracked = trackedQuiz?.some((data) => data.quiz.id === quiz.id);
+
+      if (!isTracked) {
+        const response = await axios.post(
+          `http://localhost:8080/v1/trackQuiz/${quizId}`,
+          {
+            userId: userId,
+          }
+        );
+        if (response.status === 201) {
+          alert("Quiz tracked");
+        }
+      } else {
+        alert("Quiz already Tracked!");
+      }
+      router.refresh();
     } catch (error) {
       console.log(error);
     } finally {
@@ -60,6 +96,12 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
         `http://localhost:8080/v1/grade-quiz/${quiz.id}`
       );
       const grades = response.data.data;
+      const date = new Date(grades?.answeredAt);
+
+      // Format the date as YYYY-MM-DD
+      const formattedDate = format(date, "yyyy-MM-dd");
+      console.log("Grade:", grades);
+      setAnsweredAt(formattedDate);
       const user = grades.filter((grade: any) => grade.user.clerkId === userId);
 
       if (user.length > 0) {

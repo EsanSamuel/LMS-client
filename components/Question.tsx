@@ -50,8 +50,8 @@ const Question = ({
             }
           };
           return (
-            <div className="mt-4 gap-4 flex flex-col">
-              <div key={optindex} className="flex items-center space-x-2 pb-3">
+            <div className="mt-4 gap-4 flex flex-col" key={optindex}>
+              <div className="flex items-center space-x-2 pb-3">
                 <RadioGroupItem
                   value={opt}
                   id={`option-${question.id}-${optindex}`}

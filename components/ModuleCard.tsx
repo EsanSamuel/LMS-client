@@ -4,6 +4,14 @@ import axios from "axios";
 import { FileText, Package, SquareLibrary } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
+import { Progress } from "@/components/ui/progress";
+import {
+  CircularProgressbar,
+  CircularProgressbarWithChildren,
+  buildStyles,
+} from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { Button } from "./ui/button";
 
 interface CoursePayload {
   userId: string;
@@ -30,9 +38,25 @@ interface IModule {
     description: string | null;
     id: string;
     createdAt: Date;
-    Content: any;
+    Content: {
+      userId: string;
+      title: string;
+      status: string;
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      thumbnailUrl: string;
+      textContent: string | null;
+      videoUrls?: File[];
+      imageUrls: File[];
+      pdf: File[];
+      isDiscussion: boolean;
+      courseRoomId: string | null;
+    }[];
   };
   isTracking?: boolean;
+  trackedCourses?: any;
+  trackModules?: any;
 }
 
 interface ITrack {
@@ -52,7 +76,12 @@ interface ITrack {
   };
 }
 
-const ModuleCard = ({ module, isTracking }: IModule) => {
+const ModuleCard = ({
+  module,
+  isTracking,
+  trackedCourses,
+  trackModules,
+}: IModule) => {
   const { userId } = useAuth();
   const router = useRouter();
   async function fetchCourses(): Promise<CoursePayload[]> {
@@ -81,7 +110,7 @@ const ModuleCard = ({ module, isTracking }: IModule) => {
   }
 
   const {
-    data: trackCourses,
+    data: trackedModules,
     error,
     isLoading,
   } = useQuery({
@@ -90,13 +119,15 @@ const ModuleCard = ({ module, isTracking }: IModule) => {
   });
 
   const checkIfTracked = useMemo(() => {
-    const modules = trackCourses?.map((data) => data.module.id);
+    const modules = trackedModules?.map((data) => data.module.id);
     return modules?.includes(module.id);
-  }, [module.id, trackCourses]);
+  }, [module.id, trackedModules]);
 
   const handleClick = async (moduleId: string) => {
     try {
-      const isTracked = trackCourses?.some((data) => data.module.id);
+      const isTracked = trackedModules?.some(
+        (data) => data.module.id === module.id
+      );
       if (!isTracked) {
         const response = await axios.post(
           `http://localhost:8080/v1/trackModule/${module.id}`,
@@ -104,6 +135,7 @@ const ModuleCard = ({ module, isTracking }: IModule) => {
             userId: userId,
           }
         );
+        alert("Tracked!");
         if (response.status === 201) {
           router.push(`/Courses/${moduleId}`);
         }
@@ -115,6 +147,21 @@ const ModuleCard = ({ module, isTracking }: IModule) => {
       console.log(error);
     }
   };
+
+  const filterCourseByModuleId = () => {
+    const courses = trackedCourses?.filter(
+      (data: any) => data.content.Module.id === module.id
+    ).length as any;
+    console.log("Filtered Courses:", courses);
+    return courses;
+  };
+
+  const calculateProgress = useMemo(() => {
+    const percentageViewed =
+      (filterCourseByModuleId() / module.Content.length) * 100;
+    console.log(percentageViewed);
+    return percentageViewed;
+  }, [filterCourseByModuleId(), module.Content.length]);
 
   return (
     <div
@@ -135,12 +182,78 @@ const ModuleCard = ({ module, isTracking }: IModule) => {
           </div>
         </div>
       </>
-      <div className="lg:flex hidden items-center gap-1">
-        <FileText size={14} className="text-gray-600" />
+      <div className="flex gap-20 items-center justify-center">
+        {isTracking && (
+          <div className="flex items-center flex-col">
+            {module.Content.length === 0 ? (
+              <>
+                <div className="flex gap-1 items-center">
+                  <div className="w-7">
+                    <CircularProgressbar
+                      value={0}
+                      text={`${
+                        CircularProgressbar === (NaN as any) && (0 as any)
+                      }`}
+                      strokeWidth={10}
+                      styles={buildStyles({
+                        textColor: "#47f486",
+                        pathColor: "#47f486",
+                        trailColor: "",
+                        textSize: 0,
+                      })}
+                      className=""
+                    />
+                  </div>
+                  <h1 className="text-gray-600 text-[12px] font-bold">0%</h1>
+                </div>
+              </>
+            ) : (
+              <div className="flex gap-1 items-center">
+                <div className="w-7">
+                  <CircularProgressbar
+                    value={calculateProgress}
+                    text={`${
+                      CircularProgressbar === (NaN as any) && calculateProgress
+                    }%`}
+                    strokeWidth={10}
+                    styles={buildStyles({
+                      textColor: "#47f486",
+                      pathColor: "#47f486",
+                      trailColor: "",
+                      textSize: 0,
+                    })}
+                    className=""
+                  />
+                </div>
+                <h1 className="text-gray-600 text-[12px] font-bold">
+                  {calculateProgress}%
+                </h1>
+              </div>
+            )}
+          </div>
+        )}
+        <div
+          className={`lg:flex hidden items-center gap-1 ${
+            isTracking && "lg:flex sm:flex  hidden"
+          }`}
+        >
+          <FileText size={14} className="text-gray-600" />
 
-        <h1 className="font-bold text-[14px] text-gray-600">
-          {module?.Content?.length} courses
-        </h1>
+          <h1 className="font-bold text-[14px] text-gray-600">
+            {module?.Content?.length} courses
+          </h1>
+        </div>
+        {isTracking && (
+          <div className={`${isTracking && "lg:flex sm:flex  hidden"}`}>
+            {calculateProgress === 100 ? (
+              <Button className="bg-[#8c6dfd] ">Completed</Button>
+            ) : (
+              <Button className="bg-[#8c6dfd] ">
+                {module.Content.length > 0 ? "Continue" : "Start"}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

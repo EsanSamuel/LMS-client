@@ -1,12 +1,25 @@
 "use client";
 import ModuleCard from "@/components/ModuleCard";
+import QuizCard from "@/components/QuizCard";
+import RoomCard from "@/components/RoomCard";
+import TrackQuizCard from "@/components/TrackQuizCard";
 import { Button } from "@/components/ui/button";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Package } from "lucide-react";
 import React, { CSSProperties, useMemo, useState } from "react";
 import BeatLoader from "react-spinners/BeatLoader";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const override: CSSProperties = {
   display: "block",
@@ -43,12 +56,15 @@ interface ICourse {
   addedAt: Date;
   content: {
     id: string;
+    module: any;
   };
 }
 
 const page = () => {
   const { userId } = useAuth();
+  const [showRoom, setShowRoom] = useState("two");
   const [show, setShow] = useState("two");
+  const [answers, setAnswers] = useLocalStorage<any>("answers", {});
   async function fetchUser(): Promise<User | null> {
     if (!userId) return null;
     const response = await axios.get(
@@ -123,11 +139,64 @@ const page = () => {
     queryKey: [`trackCourses:${userId}`],
     queryFn: fetchUserTrackedCourses,
   });
+
+  async function fetchUserTrackRoooms(): Promise<any[]> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getTrackedRoom/${userId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const {
+    data: trackedRoom,
+    error: roomError,
+    isLoading: roomIsloading,
+  } = useQuery({
+    queryKey: [`trackRooms:${userId}`],
+    queryFn: fetchUserTrackRoooms,
+  });
+
+  const getnumofRooms = useMemo(() => {
+    if (show === "two") {
+      return trackedRoom?.slice(0, 2);
+    } else if (show === "all") {
+      return trackedRoom;
+    } else {
+      return trackedRoom;
+    }
+  }, [show, trackedRoom]);
+
+  async function fetchUserTrackQuiz(): Promise<any[]> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getTrackedQuiz/${userId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const {
+    data: trackedQuiz,
+    error: quizError,
+    isLoading: quizloading,
+  } = useQuery({
+    queryKey: [`trackQuiz:${userId}`],
+    queryFn: fetchUserTrackQuiz,
+  });
+
+  const handleAnswerChange = (q_id: string, value: string) => {
+    //answers.1234 = "Answer"
+    setAnswers({ ...answers, [q_id]: value });
+  };
+
   return (
     <div className="lg:px-[50px] px-5 py-10">
       <h1 className="font-bold text-[24px] text-gray-600">
         Good {getDay}, {getFirstName} 👋
       </h1>
+      <p className="text-gray-600 text-[11px] mt-2">
+        Welcome to lms app, check rooms, courses you've started learning!
+      </p>
 
       <div className="mt-10">
         <div className="flex justify-between">
@@ -159,10 +228,99 @@ const page = () => {
         ) : (
           <div className="flex flex-col gap-2 mt-5">
             {getnumofModule?.map((course) => (
-              <ModuleCard module={course.module} isTracking />
+              <div className="" key={course.id}>
+                <ModuleCard
+                  module={course.module}
+                  isTracking
+                  trackedCourses={tracked}
+                  trackModules={trackCourses}
+                />
+              </div>
             ))}
           </div>
         )}
+
+        <div className="mt-10">
+          <div className="flex justify-between">
+            <h1 className="font-bold text-[14px] text-gray-600">
+              Engaged Rooms
+            </h1>
+            {showRoom === "two" ? (
+              <button
+                className="underline text-blue-400 text-[13px]"
+                onClick={() => setShowRoom("all")}
+              >
+                View All
+              </button>
+            ) : (
+              <button
+                className="underline text-blue-400 text-[13px]"
+                onClick={() => setShowRoom("two")}
+              >
+                View less
+              </button>
+            )}
+          </div>
+          <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5 mt-5">
+            {trackedRoom?.map((content: any) => (
+              <RoomCard content={content.room} key={content.id} />
+            ))}
+          </div>
+
+          <div className="mt-10">
+            <div className="flex justify-between mt-5">
+              <h1 className="font-bold text-[14px] text-gray-600">
+                Engaged Quiz
+              </h1>
+              {showRoom === "two" ? (
+                <button
+                  className="underline text-blue-400 text-[13px]"
+                  onClick={() => setShowRoom("all")}
+                >
+                  View All
+                </button>
+              ) : (
+                <button
+                  className="underline text-blue-400 text-[13px]"
+                  onClick={() => setShowRoom("two")}
+                >
+                  View less
+                </button>
+              )}
+            </div>
+            <div className=" mt-5 w-full">
+              <Table>
+                <TableCaption>Quizzes you've taken.</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Quiz Title</TableHead>
+                    <TableHead>Date attempted</TableHead>
+                    <TableHead className="">Score</TableHead>
+                    <TableHead className="">Status</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {trackedQuiz?.map((data: any) => (
+                    <TrackQuizCard
+                      quiz={data?.quiz}
+                      handleAnswerChange={handleAnswerChange}
+                      answers={answers}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* {trackedQuiz?.map((data: any) => (
+                <QuizCard
+                  quiz={data.quiz}
+                  handleAnswerChange={handleAnswerChange}
+                  answers={answers}
+                />
+              ))}*/}
+            </div>
+          </div>
+        </div>
       </div>
 
       {trackLoading && (

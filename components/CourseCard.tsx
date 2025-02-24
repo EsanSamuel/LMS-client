@@ -42,7 +42,9 @@ const CourseCard = ({ course, index }: { course: any; index: number }) => {
 
   const handleClick = async () => {
     try {
-      const isTracked = trackCourses?.some((data) => data.content.id);
+      const isTracked = trackCourses?.some(
+        (data) => data.content.id === course.id
+      );
       if (!isTracked) {
         const response = await axios.post(
           `http://localhost:8080/v1/trackCourse/${course.id}`,

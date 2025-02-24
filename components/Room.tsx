@@ -52,6 +52,24 @@ interface CreateModulePayload {
   description: string | null;
   id: string;
   createdAt: Date;
+  Content: any;
+}
+
+interface ITrack {
+  userId: string;
+  moduleId: string;
+  id: string;
+  addedAt: Date;
+  module: {
+    userId: string;
+    roomId: string;
+    title: string;
+    position: number;
+    description: string | null;
+    id: string;
+    createdAt: Date;
+    Content: any;
+  };
 }
 
 const Room = ({ roomId }: { roomId: string }) => {
@@ -90,7 +108,7 @@ const Room = ({ roomId }: { roomId: string }) => {
     queryFn: fetchModules,
   });
 
-  const mutation = useMutation<void, Error, CreateModulePayload>({
+  const mutation = useMutation<void, Error, CreateModulePayload | any>({
     mutationFn: (data: CreateModulePayload) => {
       return axios.post("http://localhost:8080/v1/create-course-module", data);
     },
@@ -115,7 +133,7 @@ const Room = ({ roomId }: { roomId: string }) => {
       formData.append("roomId", roomId);
 
       mutation.mutate({
-        userId: userId ,
+        userId: userId,
         title: form.moduleTitle,
         description: form.moduleDescription,
         position: form.modulePosition,
@@ -125,6 +143,23 @@ const Room = ({ roomId }: { roomId: string }) => {
       console.log(error);
     }
   };
+
+  async function fetchUserTracks(): Promise<ITrack[]> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getTrackedModule/${userId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const {
+    data: trackCourses,
+    error: trackError,
+    isLoading: trackLoading,
+  } = useQuery({
+    queryKey: [`tracks:${userId}`],
+    queryFn: fetchUserTracks,
+  });
 
   return (
     <div className="w-full lg:px-20 md:px-10 px-5 mt-5">

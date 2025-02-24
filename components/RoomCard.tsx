@@ -44,13 +44,23 @@ interface IBookmark {
   };
 }
 
+interface iRooms {
+  id: string;
+  userId: string;
+  roomId: string;
+  addedAt: Date;
+  room: {
+    id: string;
+  };
+}
+
 const RoomCard = ({ content }: ContentRoomProps) => {
   const { userId } = useAuth();
   const router = useRouter();
   const [base64Image, setBase64Image] = useState("");
-  const handleClick = () => {
+  /* const handleClick = () => {
     router.push(`/Room/${content.id}`);
-  };
+  };*/
 
   const mutation = useMutation<void, Error>({
     mutationFn: () => {
@@ -98,6 +108,48 @@ const RoomCard = ({ content }: ContentRoomProps) => {
   const unBookmark = async () => {
     try {
       await axios.delete(`http://localhost:8080/v1/get-bookmark/${content.id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function fetchUserTracks(): Promise<iRooms[]> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getTrackedRoom/${userId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const {
+    data: trackedRoom,
+    error: isError,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: [`trackRooms:${userId}`],
+    queryFn: fetchUserTracks,
+  });
+
+  const handleClick = async () => {
+    try {
+      const isTracked = trackedRoom?.some(
+        (data) => data.room.id === content.id
+      );
+      if (!isTracked) {
+        const response = await axios.post(
+          `http://localhost:8080/v1/trackRoom/${content.id}`,
+          {
+            userId: userId,
+          }
+        );
+        alert("Tracked!");
+        if (response.status === 201) {
+          router.push(`/Room/${content.id}`);
+        }
+      } else {
+        alert("already tracked!");
+        router.push(`/Room/${content.id}`);
+      }
     } catch (error) {
       console.log(error);
     }

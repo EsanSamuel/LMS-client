@@ -28,7 +28,7 @@ import { Separator } from "./ui/separator";
 import axios from "axios";
 import { auth } from "@clerk/nextjs/server";
 import { useQuery } from "@tanstack/react-query";
-import { SignIn, SignInButton, useAuth } from "@clerk/nextjs";
+import { SignIn, SignInButton, useAuth, SignUpButton } from "@clerk/nextjs";
 import { useEffect } from "react";
 import Image from "next/image";
 
