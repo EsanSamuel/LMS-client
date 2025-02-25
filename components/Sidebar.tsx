@@ -31,6 +31,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SignIn, SignInButton, useAuth, SignUpButton } from "@clerk/nextjs";
 import { useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface User {
   username: string;
@@ -49,8 +50,8 @@ const items = [
     icon: BookOpen,
   },
   {
-    title: "Explore courses",
-    url: "#",
+    title: "Explore",
+    url: "/Explore",
     icon: Search,
   },
   {
@@ -85,7 +86,7 @@ export function AppSidebar() {
   }
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["user"],
+    queryKey: [`user:${userId}`],
     queryFn: fetchUser,
     enabled: !!userId,
   });
@@ -137,10 +138,10 @@ export function AppSidebar() {
                 {items2.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild className="text-[13px]">
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -169,7 +170,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className="text-[13px]">
                     {userId ? (
-                      <a href="#">
+                      <Link href="/Profile">
                         <Image
                           src={data?.profileImage!}
                           alt="profileimage"
@@ -179,7 +180,7 @@ export function AppSidebar() {
                         />
 
                         <span>{data?.username}</span>
-                      </a>
+                      </Link>
                     ) : (
                       <SignInButton />
                     )}

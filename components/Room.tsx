@@ -42,6 +42,9 @@ interface roomProps {
   createdAt: Date;
   userId: string;
   userIds: string[];
+  creator: {
+    clerkId: true;
+  };
 }
 
 interface CreateModulePayload {
@@ -161,6 +164,14 @@ const Room = ({ roomId }: { roomId: string }) => {
     queryFn: fetchUserTracks,
   });
 
+  const isAuthor = () => {
+    if (data?.creator.clerkId === userId) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   return (
     <div className="w-full lg:px-20 md:px-10 px-5 mt-5">
       <div className="flex justify-between lg:flex-row md:flex-row flex-col gap-5">
@@ -173,80 +184,82 @@ const Room = ({ roomId }: { roomId: string }) => {
           </p>
         </div>
 
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]">
-              <Plus className="font-bold" size={15} />
-              Add Course Module
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Create course module</SheetTitle>
-              <SheetDescription className="text-[13px]">
-                Create a course module in {data?.roomName} for users to explore
-                and learn courses available in the modules.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="grid gap-4 py-4">
-              <div className="text-start flex flex-col  gap-2">
-                <Label htmlFor="name" className="text-left">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  className="col-span-3"
-                  placeholder="Module name"
-                  onChange={(e) =>
-                    setForm({ ...form, moduleTitle: e.target.value })
-                  }
-                />
+        {isAuthor() && (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]">
+                <Plus className="font-bold" size={15} />
+                Add Course Module
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Create course module</SheetTitle>
+                <SheetDescription className="text-[13px]">
+                  Create a course module in {data?.roomName} for users to
+                  explore and learn courses available in the modules.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="grid gap-4 py-4">
+                <div className="text-start flex flex-col  gap-2">
+                  <Label htmlFor="name" className="text-left">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    className="col-span-3"
+                    placeholder="Module name"
+                    onChange={(e) =>
+                      setForm({ ...form, moduleTitle: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="text-start flex flex-col  gap-2">
+                  <Label htmlFor="description" className="text-left">
+                    Description
+                  </Label>
+                  <Input
+                    id="username"
+                    className="col-span-3"
+                    placeholder="Module description..."
+                    onChange={(e) =>
+                      setForm({ ...form, moduleDescription: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="text-start flex flex-col  gap-2">
+                  <Label htmlFor="position" className="text-left">
+                    Position
+                  </Label>
+                  <Input
+                    id="position"
+                    type="number"
+                    className="col-span-3"
+                    placeholder="1"
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        modulePosition: e.target.valueAsNumber as number,
+                      })
+                    }
+                  />
+                </div>
               </div>
-              <div className="text-start flex flex-col  gap-2">
-                <Label htmlFor="description" className="text-left">
-                  Description
-                </Label>
-                <Input
-                  id="username"
-                  className="col-span-3"
-                  placeholder="Module description..."
-                  onChange={(e) =>
-                    setForm({ ...form, moduleDescription: e.target.value })
-                  }
-                />
-              </div>
-              <div className="text-start flex flex-col  gap-2">
-                <Label htmlFor="position" className="text-left">
-                  Position
-                </Label>
-                <Input
-                  id="position"
-                  type="number"
-                  className="col-span-3"
-                  placeholder="1"
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      modulePosition: e.target.valueAsNumber as number,
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <SheetFooter>
-              <SheetClose asChild>
-                <Button
-                  type="submit"
-                  onClick={handleSubmit}
-                  disabled={mutation.isPending}
-                >
-                  {mutation.isPending ? "Creating..." : "Create"}
-                </Button>
-              </SheetClose>
-            </SheetFooter>
-          </SheetContent>
-          {/*Add room organizers */}
-        </Sheet>
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button
+                    type="submit"
+                    onClick={handleSubmit}
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? "Creating..." : "Create"}
+                  </Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+            {/*Add room organizers */}
+          </Sheet>
+        )}
       </div>
       <div className="lg:py-10 py-5">
         <h1 className="font-bold pb-3 text-gray-600">Modules</h1>

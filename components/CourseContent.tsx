@@ -37,6 +37,7 @@ interface CoursePayload {
   id: string;
   creator: {
     username: string;
+    clerkId: string;
   };
   updatedAt: Date;
   thumbnailUrl: string;
@@ -122,6 +123,14 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
   const handleAnswerChange = (q_id: string, value: string) => {
     //answers.1234 = "Answer"
     setAnswers({ ...answers, [q_id]: value });
+  };
+
+  const isAuthor = () => {
+    if (data?.creator.clerkId === userId) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   return (
@@ -264,13 +273,15 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
               <h1 className="font-bold text-gray-600 text-[16px]">Quiz</h1>
             </div>
 
-            <Button
-              onClick={navigateQuiz}
-              className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]"
-            >
-              <Plus className="font-bold" size={15} />
-              Add Quiz
-            </Button>
+            {isAuthor() && (
+              <Button
+                onClick={navigateQuiz}
+                className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]"
+              >
+                <Plus className="font-bold" size={15} />
+                Add Quiz
+              </Button>
+            )}
           </div>
           <div className="">
             {!quizloading && (!quizzes || quizzes.length === 0) ? (
@@ -283,7 +294,7 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
             ) : (
               <div className="mt-5">
                 {quizzes?.map((quiz, index) => (
-                  <div key={index}>
+                  <div key={index} className="w-full">
                     <QuizCard
                       quiz={quiz}
                       handleAnswerChange={handleAnswerChange}

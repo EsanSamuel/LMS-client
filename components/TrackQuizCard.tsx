@@ -94,8 +94,9 @@ const TrackQuizCard = ({ quiz, handleAnswerChange, answers }: IProps) => {
                 />
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Continue</AlertDialogAction>
+                <AlertDialogCancel className="w-full rounded-full text-gray-600">
+                  Cancel
+                </AlertDialogCancel>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

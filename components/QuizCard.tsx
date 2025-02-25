@@ -30,6 +30,7 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
   const [userQuiz, setUserQuiz] = useState<boolean>(false);
   const [answeredAt, setAnsweredAt] = useState("");
   const [isSubmitting, setisSubmitting] = useState<boolean>(false);
+  const [answerDetails, setAnswerDetails] = useState("");
   const mutation = useMutation<void, Error, UserAnswerPayload>({
     mutationFn: (data: UserAnswerPayload) => {
       return axios.post(
@@ -96,16 +97,13 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
         `http://localhost:8080/v1/grade-quiz/${quiz.id}`
       );
       const grades = response.data.data;
-      const date = new Date(grades?.answeredAt);
-
-      // Format the date as YYYY-MM-DD
-      const formattedDate = format(date, "yyyy-MM-dd");
-      console.log("Grade:", grades);
-      setAnsweredAt(formattedDate);
+      setAnswerDetails(grades);
       const user = grades.filter((grade: any) => grade.user.clerkId === userId);
+      console.log("User Answer:", user);
 
       if (user.length > 0) {
         setUserQuiz(true);
+        console.log("Quiz Taken", user);
         const score = grades.filter((grade: any) => grade.isCorrect).length;
         setScore(score);
       } else {
@@ -149,15 +147,20 @@ const QuizCard = ({ quiz, answers, handleAnswerChange }: IQuiz) => {
       <div className="flex lg:justify-between items-center">
         <div className="flex lg:justify-end">
           {!userQuiz ? (
-            <Button onClick={() => handleQuizSubmit(quiz.id)}>
+            <Button
+              onClick={() => handleQuizSubmit(quiz.id)}
+              className="bg-[#8c6dfd]"
+            >
               {mutation.isPending ? "Submitting..." : " Submit"}
             </Button>
           ) : (
             <div className="flex gap-2 flex-col items-center">
-              <h1 className="font-bold text-[14px] text-gray-600">
+              {/*<h1 className="font-bold text-[14px] text-gray-600">
                 You've taken this quiz
-              </h1>
-              <Button onClick={handleDeleteAnswers}>Retake Quiz</Button>
+              </h1>*/}
+              <Button onClick={handleDeleteAnswers} className="bg-[#8c6dfd]">
+                Retake Quiz
+              </Button>
             </div>
           )}
         </div>

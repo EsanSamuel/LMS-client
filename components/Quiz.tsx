@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { Plus, X } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,26 @@ interface QuestionPayload {
   }[];
 }
 
+interface CoursePayload {
+  userId: string;
+  title: string;
+  status: string;
+  id: string;
+  creator: {
+    username: string;
+    clerkId: string;
+  };
+  updatedAt: Date;
+  thumbnailUrl: string;
+  textContent: string | null;
+  videoUrls?: File[];
+  imageUrls: File[];
+  pdf: File[];
+  isDiscussion: boolean;
+  courseRoomId: string | null;
+  links: string[];
+}
+
 const Quiz = ({ courseId }: { courseId: string }) => {
   const { userId } = useAuth();
   const router = useRouter();
@@ -30,6 +50,31 @@ const Quiz = ({ courseId }: { courseId: string }) => {
       correctAnswer: "",
     },
   ]);
+
+  async function fetchCourse(): Promise<CoursePayload> {
+    const response = await axios.get(
+      `http://localhost:8080/v1/getCourse/${courseId}`
+    );
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const { data, error, isLoading } = useQuery({
+    queryKey: [`course:${courseId}`],
+    queryFn: fetchCourse,
+  });
+
+  useEffect(() => {
+    const verifiedAuthor = () => {
+      if (data?.creator.clerkId !== userId) {
+        alert("You're not authorized for this page!");
+        return router.push(`/Content/${courseId}`);
+      }else{
+        alert("You're authorized for this page!");
+      }
+    };
+    verifiedAuthor();
+  }, [data?.creator.clerkId, userId]);
 
   const handleQuestionChange = (
     index: number,

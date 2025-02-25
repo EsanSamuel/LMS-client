@@ -10,7 +10,9 @@ import {
   Library,
   Package,
   Plus,
+  Search,
   SquareLibrary,
+  User,
 } from "lucide-react";
 import {
   Dialog,
@@ -126,6 +128,18 @@ const Navbar = () => {
       return (
         <div className="bg-[#ebe243] rounded-[5px] p-2 items-center">
           <BookOpen size={14} color="#fff" />
+        </div>
+      );
+    } else if (path === "Explore") {
+      return (
+        <div className="bg-[#8c6dfd] rounded-[5px] p-2 items-center">
+          <Search size={14} color="#fff" />
+        </div>
+      );
+    } else if (path === "Profile") {
+      return (
+        <div className="bg-[#8c6dfd] rounded-[5px] p-2 items-center">
+          <User size={14} color="#fff" />
         </div>
       );
     }

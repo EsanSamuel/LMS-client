@@ -131,23 +131,31 @@ const page = () => {
         <Breadcrumb className="text-[12px]">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Room</BreadcrumbLink>
+              <BreadcrumbLink href="/" className="text-[12px]">
+                Room
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Module</BreadcrumbLink>
+              <BreadcrumbLink href="/components" className="text-[12px]">
+                Module
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Course</BreadcrumbLink>
+              <BreadcrumbLink href="/components" className="text-[12px]">
+                Course
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Content</BreadcrumbLink>
+              <BreadcrumbLink href="/components" className="text-[12px]">
+                Content
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="font-bold text-gray-600">
+              <BreadcrumbPage className="font-bold text-gray-600 text-[12px]">
                 Room
               </BreadcrumbPage>
             </BreadcrumbItem>

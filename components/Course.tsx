@@ -48,6 +48,9 @@ interface IModule {
   description: string | null;
   id: string;
   createdAt: Date;
+  creator: {
+    clerkId: string;
+  };
 }
 
 interface CreateCoursePayload {
@@ -243,6 +246,14 @@ const Course = ({ moduleId }: { moduleId: string }) => {
     queryFn: fetchCourses,
   });
 
+  const isAuthor = () => {
+    if (data?.creator?.clerkId === userId) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   return (
     <div className="w-full lg:px-20 md:px-10 px-5 mt-5">
       <div className="flex justify-between lg:flex-row md:flex-row flex-col gap-5">
@@ -251,241 +262,246 @@ const Course = ({ moduleId }: { moduleId: string }) => {
           <p className="text-[13px] text-gray-600">{data?.description}</p>
         </div>
 
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white rounded-md text-[14px]">
-              <Plus className="font-bold" size={15} />
-              Create course
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>Add course Chapter</SheetTitle>
-              <SheetDescription className="text-[13px]"></SheetDescription>
-            </SheetHeader>
-            <div className="grid gap-4 py-4">
-              {!form.thumbnailUrl ? (
-                <div className="bg-red-400 rounded-md w-full h-[200px] p-10">
-                  <div className="justify-end flex">
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <input
-                        type="file"
-                        id="file-upload"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleFile}
-                      />
-                      <Button
-                        asChild // Ensures full button acts like the label
-                        className="flex gap-2 bg-white shadow-md rounded-full py-1 px-3 text-black bottom-3 justify-end hover:bg-gray-100 mt-[100px]"
-                      >
-                        <span>
-                          {" "}
-                          {/* Wrapping content ensures full button triggers file picker */}
-                          <ImageIcon />
-                          Update Thumbnail
-                        </span>
-                      </Button>
-                    </label>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <Image
-                    src={previewThumbnail || ""}
-                    alt="thumbnailImage"
-                    width={1000}
-                    height={1000}
-                    className="rounded-md w-full h-[200px]"
-                  />
-                </div>
-              )}
-              <div className="text-start flex flex-col  gap-2">
-                <Label htmlFor="name" className="text-left text-gray-600">
-                  Course title
-                </Label>
-                <Input
-                  id="name"
-                  className="col-span-3 text-[13px]"
-                  placeholder="Module name"
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                />
-              </div>
-              <div className="text-start flex flex-col  gap-2">
-                <Label
-                  htmlFor="description"
-                  className="text-left text-gray-600"
-                >
-                  Course description
-                </Label>
-                <Input
-                  id="username"
-                  className="col-span-3 text-[13px]"
-                  placeholder="Module description..."
-                  onChange={(e) =>
-                    setForm({ ...form, textContent: e.target.value })
-                  }
-                />
-              </div>
-              <div className="text-start flex flex-col  gap-2">
-                <Label
-                  htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left text-gray-600"
-                >
-                  Upload images
-                  <>
-                    {" "}
-                    <span className="text-[13px]">
-                      {(imagesMB / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  </>
-                </Label>
-                <Input
-                  id="username"
-                  className="col-span-3 text-[13px]"
-                  placeholder="Module description..."
-                  onChange={handleImages}
-                  type="file"
-                  multiple
-                />
-                {previewImages && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {previewImages.map((image, index) => (
-                      <div key={index}>
-                        <Image
-                          src={image}
-                          alt="image"
-                          width={300}
-                          height={300}
-                          className="rounded-[10px] h-[80px]"
+        {isAuthor() === true && (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white rounded-md text-[14px]">
+                <Plus className="font-bold" size={15} />
+                Create course
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Add course Chapter</SheetTitle>
+                <SheetDescription className="text-[13px]"></SheetDescription>
+              </SheetHeader>
+              <div className="grid gap-4 py-4">
+                {!form.thumbnailUrl ? (
+                  <div className="bg-red-400 rounded-md w-full h-[200px] p-10">
+                    <div className="justify-end flex">
+                      <label htmlFor="file-upload" className="cursor-pointer">
+                        <input
+                          type="file"
+                          id="file-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleFile}
                         />
-                      </div>
-                    ))}
+                        <Button
+                          asChild // Ensures full button acts like the label
+                          className="flex gap-2 bg-white shadow-md rounded-full py-1 px-3 text-black bottom-3 justify-end hover:bg-gray-100 mt-[100px]"
+                        >
+                          <span>
+                            {" "}
+                            {/* Wrapping content ensures full button triggers file picker */}
+                            <ImageIcon />
+                            Update Thumbnail
+                          </span>
+                        </Button>
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Image
+                      src={previewThumbnail || ""}
+                      alt="thumbnailImage"
+                      width={1000}
+                      height={1000}
+                      className="rounded-md w-full h-[200px]"
+                    />
                   </div>
                 )}
-              </div>
-              <div className="text-start flex flex-col  gap-2">
-                <Label
-                  htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left text-gray-600"
-                >
-                  Upload videos
-                  <>
-                    {" "}
-                    <span className="text-[13px]">
-                      {(videosMB / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  </>
-                </Label>
-                <Input
-                  id="username"
-                  className="col-span-3 text-[13px]"
-                  placeholder="Module description..."
-                  onChange={handleVideos}
-                  type="file"
-                  multiple
-                />
-              </div>
-
-              <div className="text-start flex flex-col  gap-2">
-                <Label
-                  htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left text-gray-600"
-                >
-                  Upload PDFs
-                  <>
-                    {" "}
-                    <span className="text-[13px]">
-                      {(pdfsMB / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  </>
-                </Label>
-                <Input
-                  id="username"
-                  className="col-span-3 text-[13px]"
-                  placeholder="Module description..."
-                  onChange={handlePdf}
-                  type="file"
-                  multiple
-                />
-              </div>
-
-              <div className="text-start flex flex-col  gap-2">
-                <Label
-                  htmlFor="description"
-                  className="flex justify-between items-center gap-2 text-left text-gray-600"
-                >
-                  Add Links
-                  <Plus className="text-[#8c6dfd]" onClick={addLinkInput} />
-                </Label>
-                {links.map((link, linkIndex) => (
+                <div className="text-start flex flex-col  gap-2">
+                  <Label htmlFor="name" className="text-left text-gray-600">
+                    Course title
+                  </Label>
+                  <Input
+                    id="name"
+                    className="col-span-3 text-[13px]"
+                    placeholder="Module name"
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="text-start flex flex-col  gap-2">
+                  <Label
+                    htmlFor="description"
+                    className="text-left text-gray-600"
+                  >
+                    Course description
+                  </Label>
                   <Input
                     id="username"
                     className="col-span-3 text-[13px]"
-                    placeholder="Module link..."
+                    placeholder="Module description..."
                     onChange={(e) =>
-                      handleLinkChange(linkIndex, e.target.value)
+                      setForm({ ...form, textContent: e.target.value })
                     }
-                    type="text"
-                    value={link}
                   />
-                ))}
+                </div>
+                <div className="text-start flex flex-col  gap-2">
+                  <Label
+                    htmlFor="description"
+                    className="flex justify-between items-center gap-2 text-left text-gray-600"
+                  >
+                    Upload images
+                    <>
+                      {" "}
+                      <span className="text-[13px]">
+                        {(imagesMB / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </>
+                  </Label>
+                  <Input
+                    id="username"
+                    className="col-span-3 text-[13px]"
+                    placeholder="Module description..."
+                    onChange={handleImages}
+                    type="file"
+                    multiple
+                  />
+                  {previewImages && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {previewImages.map((image, index) => (
+                        <div key={index}>
+                          <Image
+                            src={image}
+                            alt="image"
+                            width={300}
+                            height={300}
+                            className="rounded-[10px] h-[80px]"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="text-start flex flex-col  gap-2">
+                  <Label
+                    htmlFor="description"
+                    className="flex justify-between items-center gap-2 text-left text-gray-600"
+                  >
+                    Upload videos
+                    <>
+                      {" "}
+                      <span className="text-[13px]">
+                        {(videosMB / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </>
+                  </Label>
+                  <Input
+                    id="username"
+                    className="col-span-3 text-[13px]"
+                    placeholder="Module description..."
+                    onChange={handleVideos}
+                    type="file"
+                    multiple
+                  />
+                </div>
+
+                <div className="text-start flex flex-col  gap-2">
+                  <Label
+                    htmlFor="description"
+                    className="flex justify-between items-center gap-2 text-left text-gray-600"
+                  >
+                    Upload PDFs
+                    <>
+                      {" "}
+                      <span className="text-[13px]">
+                        {(pdfsMB / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </>
+                  </Label>
+                  <Input
+                    id="username"
+                    className="col-span-3 text-[13px]"
+                    placeholder="Module description..."
+                    onChange={handlePdf}
+                    type="file"
+                    multiple
+                  />
+                </div>
+
+                <div className="text-start flex flex-col  gap-2">
+                  <Label
+                    htmlFor="description"
+                    className="flex justify-between items-center gap-2 text-left text-gray-600"
+                  >
+                    Add Links
+                    <Plus className="text-[#8c6dfd]" onClick={addLinkInput} />
+                  </Label>
+                  {links.map((link, linkIndex) => (
+                    <Input
+                      key={linkIndex}
+                      id="username"
+                      className="col-span-3 text-[13px]"
+                      placeholder="Module link..."
+                      onChange={(e) =>
+                        handleLinkChange(linkIndex, e.target.value)
+                      }
+                      type="text"
+                      value={link}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex gap-2 flex-col w-full">
+                  <>
+                    <Label className="text-gray-600">Visibility</Label>
+                  </>
+                  <Select onValueChange={setStatus} value={status}>
+                    <SelectTrigger className="w-[180px] flex gap-0 items-center ext-[13px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full">
+                      <SelectItem
+                        value="public"
+                        className="text-gray-400 ext-[13px]"
+                      >
+                        Public
+                      </SelectItem>
+                      <SelectItem
+                        value="private"
+                        className="text-gray-400 ext-[13px]"
+                      >
+                        Private
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-start flex justify-between  gap-2 mt-3">
+                  <Label
+                    htmlFor="description"
+                    className="text-left text-gray-600"
+                  >
+                    Show comments
+                  </Label>
+                  <Switch
+                    checked={isDiscussion}
+                    onCheckedChange={(checked) => setIsDiscussion(checked)}
+                  />
+                </div>
               </div>
 
-              <div className="flex gap-2 flex-col w-full">
-                <>
-                  <Label className="text-gray-600">Visibility</Label>
-                </>
-                <Select onValueChange={setStatus} value={status}>
-                  <SelectTrigger className="w-[180px] flex gap-0 items-center ext-[13px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent className="w-full">
-                    <SelectItem
-                      value="public"
-                      className="text-gray-400 ext-[13px]"
-                    >
-                      Public
-                    </SelectItem>
-                    <SelectItem
-                      value="private"
-                      className="text-gray-400 ext-[13px]"
-                    >
-                      Private
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="text-start flex justify-between  gap-2 mt-3">
-                <Label
-                  htmlFor="description"
-                  className="text-left text-gray-600"
-                >
-                  Show comments
-                </Label>
-                <Switch
-                  checked={isDiscussion}
-                  onCheckedChange={(checked) => setIsDiscussion(checked)}
-                />
-              </div>
-            </div>
-
-            <SheetFooter>
-              <Separator />
-              <SheetClose asChild>
-                <Button
-                  type="submit"
-                  // onClick={handleSubmit}
-                  disabled={mutation.isPending}
-                  onClick={handleSubmit}
-                >
-                  {mutation.isPending ? "Creating..." : "Create"}
-                </Button>
-              </SheetClose>
-            </SheetFooter>
-          </SheetContent>
-          {/*Add room organizers */}
-        </Sheet>
+              <SheetFooter>
+                <Separator />
+                <SheetClose asChild>
+                  <Button
+                    type="submit"
+                    // onClick={handleSubmit}
+                    disabled={mutation.isPending}
+                    onClick={handleSubmit}
+                  >
+                    {mutation.isPending ? "Creating..." : "Create"}
+                  </Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+            {/*Add room organizers */}
+          </Sheet>
+        )}
       </div>
       <div className="py-5">
         <h1 className="font-bold pb-3 text-gray-600">Courses</h1>
@@ -500,10 +516,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
           ) : (
             <div className="flex flex-col gap-2">
               {courses?.map((course, index) => (
-                <CourseCard
-                  course={course}
-                  index={index}
-                />
+                <CourseCard course={course} index={index} />
               ))}
             </div>
           )}
