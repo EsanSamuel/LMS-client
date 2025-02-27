@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "./ui/button";
 import QuizCard from "./QuizCard";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface IProps {
   quiz: any;
@@ -85,13 +86,15 @@ const TrackQuizCard = ({ quiz, handleAnswerChange, answers }: IProps) => {
             <AlertDialogTrigger asChild>
               <Button variant="outline">View Quiz</Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <QuizCard
-                  quiz={quiz}
-                  answers={answers}
-                  handleAnswerChange={handleAnswerChange}
-                />
+            <AlertDialogContent className="overflow-y-auto">
+              <AlertDialogHeader className="overflow-y-auto">
+                <ScrollArea className="max-h-[500px] h-auto w-full rounded-md p-4">
+                  <QuizCard
+                    quiz={quiz}
+                    answers={answers}
+                    handleAnswerChange={handleAnswerChange}
+                  />
+                </ScrollArea>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="w-full rounded-full text-gray-600">

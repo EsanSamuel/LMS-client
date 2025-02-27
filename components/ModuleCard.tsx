@@ -182,7 +182,7 @@ const ModuleCard = ({
           </div>
         </div>
       </>
-      <div className="flex gap-20 items-center justify-center">
+      <div className={`flex gap-20 items-center justify-center ${isTracking && "justify-start lg:w-[40%]"} `}>
         {isTracking && (
           <div className="flex items-center flex-col">
             {module.Content.length === 0 ? (
@@ -239,14 +239,24 @@ const ModuleCard = ({
         >
           <FileText size={14} className="text-gray-600" />
 
-          <h1 className="font-bold text-[14px] text-gray-600">
-            {module?.Content?.length} courses
+          <h1 className="font-bold text-[14px] text-gray-600 flex gap-1">
+            {module?.Content?.length}{" "}
+            <span className="font-bold text-[14px] text-gray-600 flex">
+              courses
+            </span>
           </h1>
         </div>
         {isTracking && (
-          <div className={`${isTracking && "lg:flex sm:flex  hidden"}`}>
+          <div
+            className={`${
+              isTracking &&
+              "lg:flex sm:flex justify-end items-end lg:ml-10  hidden"
+            }`}
+          >
             {calculateProgress === 100 ? (
-              <Button className="bg-[#8c6dfd] ">Completed</Button>
+              <Button className="bg-[#8c6dfd] flex justify-end items-end ">
+                Completed
+              </Button>
             ) : (
               <Button className="bg-[#8c6dfd] ">
                 {module.Content.length > 0 ? "Continue" : "Start"}

@@ -89,6 +89,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
   const [videosMB, setVideosMB] = useState(0);
   const [imagesMB, setImagesMB] = useState(0);
   const [pdfsMB, setPDFsMB] = useState(0);
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
   async function fetchModule(): Promise<IModule> {
     const response = await axios.get(
@@ -102,6 +103,17 @@ const Course = ({ moduleId }: { moduleId: string }) => {
     queryKey: ["module"],
     queryFn: fetchModule,
   });
+
+  useEffect(() => {
+    const isAuthorized = async () => {
+      const response = await axios.post(
+        `http://localhost:8080/v1/authorize-role/${userId}/${data?.roomId}`
+      );
+      console.log(response.data.authorized);
+      setIsAuthorized(response.data.authorized);
+    };
+    isAuthorized();
+  }, [userId, data?.roomId]);
 
   const handleFile = (e: any) => {
     const files = e.target.files?.[0];
@@ -262,7 +274,7 @@ const Course = ({ moduleId }: { moduleId: string }) => {
           <p className="text-[13px] text-gray-600">{data?.description}</p>
         </div>
 
-        {isAuthor() === true && (
+        {(isAuthor() === true || isAuthorized) && (
           <Sheet>
             <SheetTrigger asChild>
               <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white rounded-md text-[14px]">

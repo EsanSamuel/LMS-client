@@ -64,7 +64,7 @@ const items = [
 const items2 = [
   {
     title: "Create",
-    url: "#",
+    url: "/create-room",
     icon: SquarePlus,
   },
   {

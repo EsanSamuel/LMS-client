@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { FileText, Package, Plus, SquareLibrary } from "lucide-react";
 import {
@@ -24,6 +24,13 @@ import ModuleCard from "./ModuleCard";
 
 import { CSSProperties } from "react";
 import BeatLoader from "react-spinners/BeatLoader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const override: CSSProperties = {
   display: "block",
@@ -75,6 +82,14 @@ interface ITrack {
   };
 }
 
+interface IUsers {
+  id: string;
+  username: string;
+  email: string;
+  profileImage: string;
+  clerkId: string;
+}
+
 const Room = ({ roomId }: { roomId: string }) => {
   const { userId } = useAuth();
   const router = useRouter();
@@ -83,6 +98,8 @@ const Room = ({ roomId }: { roomId: string }) => {
     moduleDescription: "",
     modulePosition: 0,
   });
+  const [collaborator, setCollaborator] = useState("");
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   async function fetchUser(): Promise<roomProps> {
     const response = await axios.get(
       `http://localhost:8080/v1/getRoom/${roomId}`
@@ -172,6 +189,51 @@ const Room = ({ roomId }: { roomId: string }) => {
     }
   };
 
+  async function fetchUsers(): Promise<IUsers[]> {
+    const response = await axios.get(`http://localhost:8080/v1/getUsers`);
+    console.log(response.data.data);
+    return response.data.data;
+  }
+
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+  });
+
+  useEffect(() => {
+    const isAuthorized = async () => {
+      const response = await axios.post(
+        `http://localhost:8080/v1/authorize-role/${userId}/${roomId}`
+      );
+      console.log(response.data.authorized);
+      setIsAuthorized(response.data.authorized);
+    };
+    isAuthorized();
+  }, [userId, roomId]);
+
+  const collaborator_mutation = useMutation<void, Error, any>({
+    mutationFn: (data: any) => {
+      return axios.post("http://localhost:8080/v1/addOrganizer", data);
+    },
+    onSuccess: () => {
+      console.log("You've added this user as a collaborator!");
+      toast.success("You've added this user as a collaborator!");
+    },
+  });
+
+  const handleCollaborator = () => {
+    try {
+      const data = {
+        roomId: roomId,
+        userId: collaborator,
+        role: "CONTRIBUTOR",
+      };
+      collaborator_mutation.mutate(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="w-full lg:px-20 md:px-10 px-5 mt-5">
       <div className="flex justify-between lg:flex-row md:flex-row flex-col gap-5">
@@ -256,6 +318,56 @@ const Room = ({ roomId }: { roomId: string }) => {
                   </Button>
                 </SheetClose>
               </SheetFooter>
+              {(isAuthor() || isAuthorized) && (
+                <>
+                  <SheetHeader className="mt-10">
+                    <SheetTitle>Add a collaborator</SheetTitle>
+                    <SheetDescription className="text-[13px]">
+                      Add a collaborator in {data?.roomName} to assist you in
+                      add courses,modules,content.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="text-start flex flex-col  gap-2">
+                      <Label htmlFor="name" className="text-left">
+                        Select User
+                      </Label>
+                      <Select
+                        onValueChange={setCollaborator}
+                        value={collaborator}
+                      >
+                        <SelectTrigger className="w-[180px] flex gap-0 items-center ext-[13px]">
+                          <SelectValue placeholder="Users" />
+                        </SelectTrigger>
+                        <SelectContent className="w-full">
+                          {users?.map((user) => (
+                            <SelectItem
+                              key={user.id}
+                              value={user.clerkId}
+                              className="w-full"
+                            >
+                              {user.username}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <SheetFooter>
+                    <SheetClose asChild>
+                      <Button
+                        type="submit"
+                        onClick={handleCollaborator}
+                        disabled={collaborator_mutation.isPending}
+                      >
+                        {collaborator_mutation.isPending
+                          ? "Adding as collaborator..."
+                          : "Add"}
+                      </Button>
+                    </SheetClose>
+                  </SheetFooter>
+                </>
+              )}
             </SheetContent>
             {/*Add room organizers */}
           </Sheet>

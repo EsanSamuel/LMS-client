@@ -48,6 +48,9 @@ interface CoursePayload {
   isDiscussion: boolean;
   courseRoomId: string | null;
   links: string[];
+  Module: {
+    roomId: string;
+  };
 }
 
 interface IQuiz {
@@ -78,6 +81,7 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
   const [quizId, setQuizId] = useLocalStorage<string>("quizId", "");
   const [userQuiz, setUserQuiz] = useState<boolean>(false);
   const [isSubmitting, setisSubmitting] = useState<boolean>(false);
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
   const router = useRouter();
   async function fetchCourse(): Promise<CoursePayload> {
@@ -92,6 +96,17 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
     queryKey: [`course:${courseId}`],
     queryFn: fetchCourse,
   });
+
+  useEffect(() => {
+    const isAuthorized = async () => {
+      const response = await axios.post(
+        `http://localhost:8080/v1/authorize-role/${userId}/${data?.Module.roomId}`
+      );
+      console.log(response.data.authorized);
+      setIsAuthorized(response.data.authorized);
+    };
+    isAuthorized();
+  }, [userId, data?.Module.roomId]);
 
   const handleVideo = (index: number) => {
     console.log(data?.videoUrls?.[index] as any);
@@ -141,10 +156,12 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
             Chapter 1: {data?.title}
           </h1>
         </>
-        <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]">
-          <Pencil size={13} className="font-bold" />
-          <span className="lg:block hidden font-bold">Edit Course</span>
-        </Button>
+        {(isAuthor() || isAuthorized) && (
+          <Button className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]">
+            <Pencil size={13} className="font-bold" />
+            <span className="lg:block hidden font-bold">Edit Course</span>
+          </Button>
+        )}
       </div>
       <div className="">
         <div className="flex gap-2 pb-5">
@@ -273,7 +290,7 @@ const CourseContent = ({ courseId }: { courseId: string }) => {
               <h1 className="font-bold text-gray-600 text-[16px]">Quiz</h1>
             </div>
 
-            {isAuthor() && (
+            {(isAuthor() || isAuthorized) && (
               <Button
                 onClick={navigateQuiz}
                 className="bg-[#8c6dfd] flex gap-1 font-bold items-center text-white py-2 px-4 rounded-md text-[14px]"
