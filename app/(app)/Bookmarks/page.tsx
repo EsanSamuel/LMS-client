@@ -104,6 +104,12 @@ const page = () => {
 
     return (bookmarks as any).filter(matchSearch);
   };
+
+  const unBookmark = async () => {
+    try {
+      await axios(``);
+    } catch (error) {}
+  };
   return (
     <>
       <div className="flex gap-2 lg:px-10 px-5">
@@ -151,7 +157,11 @@ const page = () => {
         ) : (
           <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5">
             {filterRooms()?.map((content: any) => (
-              <RoomCard content={content.room} key={content.id} />
+              <RoomCard
+                content={content.room}
+                key={content.id}
+                bookmarkId={content.id}
+              />
             ))}
           </div>
         )}

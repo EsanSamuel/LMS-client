@@ -4,7 +4,7 @@ import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { FileText, Package, Plus, SquareLibrary } from "lucide-react";
+import { FileText, Package, Plus, SquareLibrary, Trash2 } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -21,6 +21,17 @@ import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import ModuleCard from "./ModuleCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 import { CSSProperties } from "react";
 import BeatLoader from "react-spinners/BeatLoader";
@@ -234,6 +245,25 @@ const Room = ({ roomId }: { roomId: string }) => {
     }
   };
 
+  const delete_mutation = useMutation<void, Error>({
+    mutationFn: () => {
+      return axios.delete(`http://localhost:8080/v1/delete-room/${roomId}`);
+    },
+    onSuccess: () => {
+      console.log("Module deleted!");
+      toast.success("Module deleted!");
+    },
+  });
+
+  const handleDelete = async () => {
+    try {
+      delete_mutation.mutate();
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="w-full lg:px-20 md:px-10 px-5 mt-5">
       <div className="flex justify-between lg:flex-row md:flex-row flex-col gap-5">
@@ -254,7 +284,7 @@ const Room = ({ roomId }: { roomId: string }) => {
                 Add Course Module
               </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Create course module</SheetTitle>
                 <SheetDescription className="text-[13px]">
@@ -366,6 +396,45 @@ const Room = ({ roomId }: { roomId: string }) => {
                       </Button>
                     </SheetClose>
                   </SheetFooter>
+                  <div className="mt-10 text-start flex flex-col  gap-2">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          type="submit"
+                          className="w-full bg-red-400 hover:bg-red-500 flex gap-2 items-center"
+                        >
+                          <Trash2 />
+                          {delete_mutation.isPending
+                            ? "Deleting Room..."
+                            : "Delete Room"}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete this room "{data?.roomName}" and remove the
+                            data from our servers.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className=" bg-red-400 hover:bg-red-500"
+                            onClick={handleDelete}
+                            disabled={delete_mutation.isPending}
+                          >
+                            {delete_mutation.isPending
+                              ? "Deleting..."
+                              : "Delete"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </>
               )}
             </SheetContent>

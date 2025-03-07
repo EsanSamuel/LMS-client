@@ -37,7 +37,8 @@ const TrackQuizCard = ({ quiz, handleAnswerChange, answers }: IProps) => {
         `http://localhost:8080/v1/grade-quiz/${quiz.id}`
       );
       const grades = response.data.data;
-      setAnsweredAt(grades?.answeredAt);
+      setAnsweredAt(quiz.UserAnswer.answeredAt);
+      console.log(quiz.questions.UserAnswer.answeredAt);
       const user = grades.filter((grade: any) => grade.user.clerkId === userId);
 
       if (user.length > 0) {
@@ -60,7 +61,10 @@ const TrackQuizCard = ({ quiz, handleAnswerChange, answers }: IProps) => {
         </TableCell>
         <TableCell>
           {answeredAt
-            ? format(new Date(answeredAt), "dd/MM/yyyy")
+            ? format(
+                new Date(quiz?.questions?.UserAnswer?.answeredAt),
+                "dd/MM/yyyy"
+              )
             : "Not taken"}
         </TableCell>
         <TableCell className="text-gray-600">

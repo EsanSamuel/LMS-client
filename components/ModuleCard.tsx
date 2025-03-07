@@ -250,7 +250,7 @@ const ModuleCard = ({
           <div
             className={`${
               isTracking &&
-              "lg:flex sm:flex justify-end items-end lg:ml-10  hidden"
+              "lg:flex sm:flex justify-start items-start lg:ml-10  hidden"
             }`}
           >
             {calculateProgress === 100 ? (

@@ -31,6 +31,7 @@ interface ContentRoomProps {
     userIds: string[];
     Module: any;
   };
+  bookmarkId?: string;
 }
 
 interface IBookmark {
@@ -54,7 +55,7 @@ interface iRooms {
   };
 }
 
-const RoomCard = ({ content }: ContentRoomProps) => {
+const RoomCard = ({ content, bookmarkId }: ContentRoomProps) => {
   const { userId } = useAuth();
   const router = useRouter();
   const [base64Image, setBase64Image] = useState("");
@@ -107,7 +108,11 @@ const RoomCard = ({ content }: ContentRoomProps) => {
 
   const unBookmark = async () => {
     try {
-      await axios.delete(`http://localhost:8080/v1/get-bookmark/${content.id}`);
+      const response = await axios.delete(
+        `http://localhost:8080/v1/delete-bookmark/${bookmarkId}/${userId}/${content.id}`
+      );
+      if (response?.status === 200) toast.success("Bookmark removed!");
+      router.push("/");
     } catch (error) {
       console.log(error);
     }
@@ -206,7 +211,7 @@ const RoomCard = ({ content }: ContentRoomProps) => {
             <BookmarkPlus
               size={15}
               className="cursor-pointer text-[#8c6dfd]"
-              onClick={unBookmark}
+              onClick={bookmarkId ? unBookmark : () => {}}
             />
           )}
         </CardContent>

@@ -13,7 +13,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "./ui/button";
-import { Eye, FileText, ImageIcon, Plus, SquareLibrary } from "lucide-react";
+import {
+  Eye,
+  FileText,
+  ImageIcon,
+  Plus,
+  SquareLibrary,
+  Trash2,
+} from "lucide-react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import Image from "next/image";
@@ -33,6 +40,17 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import BeatLoader from "react-spinners/BeatLoader";
 import CourseCard from "./CourseCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 const override: CSSProperties = {
   display: "block",
@@ -263,6 +281,25 @@ const Course = ({ moduleId }: { moduleId: string }) => {
       return true;
     } else {
       return false;
+    }
+  };
+
+  const delete_mutation = useMutation<void, Error>({
+    mutationFn: () => {
+      return axios.delete(`http://localhost:8080/v1/delete-module/${data?.id}`);
+    },
+    onSuccess: () => {
+      console.log("Module deleted!");
+      toast.success("Module deleted!");
+    },
+  });
+
+  const handleDelete = async () => {
+    try {
+      delete_mutation.mutate();
+      router.push(`/room/${data?.roomId}`);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -510,6 +547,43 @@ const Course = ({ moduleId }: { moduleId: string }) => {
                   </Button>
                 </SheetClose>
               </SheetFooter>
+              <div className="mt-10 text-start flex flex-col  gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="submit"
+                      className="w-full bg-red-400 hover:bg-red-500 flex gap-2 items-center"
+                    >
+                      <Trash2 />
+                      {delete_mutation.isPending
+                        ? "Deleting Module..."
+                        : "Delete Module"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete this room "{data?.title}" and remove the data
+                        from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className=" bg-red-400 hover:bg-red-500"
+                        onClick={handleDelete}
+                        disabled={delete_mutation.isPending}
+                      >
+                        {delete_mutation.isPending ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </SheetContent>
             {/*Add room organizers */}
           </Sheet>

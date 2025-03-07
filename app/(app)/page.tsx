@@ -224,7 +224,7 @@ const page = () => {
         </div>
       </div>
 
-      <div className="lg:px-[50px] px-3 py-3 w-full">
+      <div className="lg:px-[50px] px-5 py-3 w-full">
         {!isLoading && (!filterRooms() || filterRooms() === (0 as any)) ? (
           <div className="flex flex-col items-center justify-center mt-20">
             <Library size={70} className="text-gray-600" />

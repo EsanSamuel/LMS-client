@@ -5,7 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
-import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { CSSProperties, useState } from "react";
+import BeatLoader from "react-spinners/BeatLoader";
+
+const override: CSSProperties = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+};
 
 interface IUsers {
   id: string;
@@ -15,6 +23,7 @@ interface IUsers {
 }
 
 const page = () => {
+  const router = useRouter();
   const [searchRooms, setSearchRooms] = useState("");
   async function fetchUsers(): Promise<IUsers[]> {
     const response = await axios.get(`http://localhost:8080/v1/getUsers`);
@@ -43,6 +52,10 @@ const page = () => {
     return (data as any[]).filter(matchSearch);
   };
 
+  const handleClick = (userId: string) => {
+    router.push(`/profile/${userId}`);
+  };
+
   return (
     <div className="lg:px-10 px-5 pt-10">
       <div className="w-full">
@@ -67,11 +80,30 @@ const page = () => {
                   {user.username}
                 </h1>
               </div>
-              <Button className="bg-[#8c6dfd] w-full">View</Button>
+              <Button
+                className="bg-[#8c6dfd] w-full"
+                onClick={() => handleClick(user.clerkId)}
+              >
+                View
+              </Button>
             </div>
           ))}
         </div>
       </div>
+
+      {isLoading && (
+        <div className="flex items-center justify-center">
+          <BeatLoader
+            color="#8c6dfd"
+            loading={isLoading}
+            cssOverride={override}
+            size={20}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+            className="justify-center"
+          />
+        </div>
+      )}
     </div>
   );
 };
